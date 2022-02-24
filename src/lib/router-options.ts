@@ -1,7 +1,17 @@
-import type { ParseOptions, TokensToRegexpOptions, RegexpToFunctionOptions } from "path-to-regexp";
+import type {
+  ParseOptions,
+  TokensToRegexpOptions,
+  RegexpToFunctionOptions,
+} from "path-to-regexp";
 
-type PathToRegexOptions = ParseOptions & TokensToRegexpOptions & RegexpToFunctionOptions;
-export type MatchingOptions = Omit<PathToRegexOptions, "end" | "strict" | "start" | "delimiter" | "prefixes" >;
+type PathToRegexOptions = ParseOptions &
+  TokensToRegexpOptions &
+  RegexpToFunctionOptions;
+
+export type MatchingOptions = Omit<
+  PathToRegexOptions,
+  "end" | "strict" | "start" | "delimiter" | "prefixes"
+>;
 
 export class RouterOptions {
   public bindPopState = true;

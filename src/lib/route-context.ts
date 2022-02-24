@@ -6,44 +6,48 @@ export interface IStateSaverCallback {
 }
 
 /**
- * @description Exposes properties and methods of the current route
+ * Exposes properties and methods of the current route
  */
 export class RouteContext {
   readonly #state: State;
   readonly #stateSaverCb: IStateSaverCallback;
 
   /**
-   * @description Exposes methods for retrieving information about the pathname segment
+   * Exposes methods for retrieving information about the pathname segment
+   *
    * @type {StringMap}
    * @readonly
    */
-  public readonly param?: StringMap;
+  public readonly param: StringMap;
 
   /**
-   * @description Stores the URL.searchParams object parsed from the url
+   * The URL.searchParams object parsed from the url
+   *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/URL/searchParams
    * @type {URLSearchParams}
    * @readonly
    */
   public readonly query: URLSearchParams;
 
-
   /**
-   * @description The full path (pathname + query string + hash)
+   * The full path (pathname + query string + hash)
+   *
    * @readonly
    * @type {string}
    */
   public readonly path: string;
 
   /**
-   * @description The pathname segment (includes the leading forward slash ('/'))
+   * The pathname segment (includes the leading forward slash ('/'))
+   *
    * @readonly
    * @type {string}
    */
   public readonly pathname: string;
 
   /**
-   * @description The query string segment (includes the leading question mark ('?'))
+   * The query string segment (includes the leading question mark ('?'))
+   *
    * @readonly
    * @type {string}
    */
@@ -51,36 +55,55 @@ export class RouteContext {
 
   /**
    * @description The hash segment (includes the leading hash symbol ('#'))
+   *
    * @readonly
    * @type {string}
    */
   public readonly hash: string;
 
   /**
-   * @description
+   * Flag that indicates if the context is handled by a route
+   *
    * @type {boolean}
    */
   public handled: boolean;
 
+  /**
+   * @param {string} path
+   * The full path (pathname + query string + hash)
+   * @param {IStateSaverCallback} saveStateFn
+   * The function to call when saving state
+   */
   constructor(path: string, saveStateFn: IStateSaverCallback) {
-    const base = window?.location?.host ?? "https://example.com";
+    const base = window?.location?.href ?? "https://example.com";
     const url = new URL(path, base);
 
-    this.#state = new State({ path });
     this.#stateSaverCb = saveStateFn;
-    this.path = path;
+    this.param = new StringMap();
+    this.path = url.pathname + url.search + url.hash;
     this.pathname = url.pathname;
     this.queryString = url.search;
     this.hash = url.hash;
     this.query = url.searchParams;
     this.handled = false;
+
+    this.#state = new State({ path: this.path });
+    this.saveState();
   }
 
+  /**
+   * Saves the state object as the public state
+   * @param {unknown} state The state object to save
+   */
   public set state(state: unknown) {
     this.#state.publicState = state;
     this.saveState();
   }
 
+  /**
+   * Retrieve the public state object
+   * @return {unknown} The public state object
+   */
   public get state(): unknown {
     return this.#state.publicState;
   }

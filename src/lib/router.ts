@@ -12,7 +12,7 @@ interface IRouteMiddleware {
   (context: RouteContext, next: IRouteHandler): unknown;
 }
 
-interface IRouteHandler extends IRouteCallback, IRouteMiddleware {
+export interface IRouteHandler extends IRouteCallback, IRouteMiddleware {
 }
 
 

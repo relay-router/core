@@ -174,9 +174,13 @@ export class StringMap {
    * `null` if the key doesn't exist.
    */
   public getString(key: string): string | null {
+    if (!this.hasKey(key)) {
+      return null;
+    }
+
     const value = this.#internalMap[key];
 
-    if (value && typeof value === "string") {
+    if (typeof value === "string") {
       return value;
     }
 
@@ -193,9 +197,12 @@ export class StringMap {
    * `null` if the key isn't an array or doesn't exist.
    */
   public getArray(key: string): string[] | null {
+    if (!this.hasKey(key))
+      return null;
+
     const value = this.#internalMap[key];
 
-    if (value && Array.isArray(value)) {
+    if (Array.isArray(value)) {
       return value;
     }
 
@@ -215,16 +222,33 @@ export class StringMap {
    * or if the key doesn't exist.
    */
   public getNumber(key: string): number | null {
-    const value = this.#internalMap[key];
+    if (!this.hasKey(key))
+      return null;
 
-    if (value && typeof value === "string") {
-      const number = +value;
-      if (!isNaN(number)) {
-        return number;
+    const value = this.getString(key);
+
+    if (value) {
+      const numberValue = +value;
+
+      if (Number.isNaN(numberValue)) {
+        return null;
       }
+
+      return numberValue;
     }
 
     return null;
+  }
+
+  /**
+   * Checks if the key exists in the map.
+   *
+   * @param {string} key the key to check.
+   *
+   * @return {boolean} `true` if the key exists. `false` otherwise.
+   */
+  public hasKey(key: string): boolean {
+    return this.#internalMap[key] !== undefined && this.#internalMap[key] !== null;
   }
 
   /**

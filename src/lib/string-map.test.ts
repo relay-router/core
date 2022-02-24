@@ -193,4 +193,16 @@ describe("StringMap", () => {
 
     expect(map.get("keyForString")).toBe("string value");
   });
+
+  test("has for key that exists will return true", () => {
+    const map = createPopulatedMap();
+
+    expect(map.hasKey("keyForString")).toBe(true);
+  });
+
+  test("hasKey for key that doesn't exist will return false", () => {
+    const map = createPopulatedMap();
+
+    expect(map.hasKey("key that doesn't exist")).toBe(false);
+  });
 });

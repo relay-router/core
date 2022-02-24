@@ -32,4 +32,20 @@ describe("makeAbsolutePath", () => {
 
     expect(absolutePath).toBe("/path");
   });
+
+  test("will make ../../path into /path", () => {
+    const relativePath = "../../path";
+
+    const absolutePath = makeAbsolutePath(relativePath);
+
+    expect(absolutePath).toBe("/path");
+  });
+
+  test("will make ./.././../path into /path", () => {
+    const relativePath = "./.././../path";
+
+    const absolutePath = makeAbsolutePath(relativePath);
+
+    expect(absolutePath).toBe("/path");
+  });
 });

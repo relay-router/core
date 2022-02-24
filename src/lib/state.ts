@@ -3,9 +3,7 @@
  * @example ```
  * const naviState = history.state[naviPrivateStateKey];
  * ```
- * @
  */
-
 export const naviPrivateStateKey = "__NaviPrivateState__";
 
 interface INaviInternalState {

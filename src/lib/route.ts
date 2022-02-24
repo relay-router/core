@@ -1,7 +1,7 @@
 import { MatchFunction, match, pathToRegexp } from "path-to-regexp";
-import { RouteContext } from "./route-context";
-import { IRouteHandler } from "./router";
-import { MatchingOptions } from "./router-options";
+import type { RouteContext } from "./route-context";
+import type { MatchingOptions } from "./router-options";
+import type { IRouteHandler } from "./router";
 
 export class Route {
   readonly #handlers: IRouteHandler[];

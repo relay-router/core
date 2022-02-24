@@ -22,6 +22,7 @@ module.exports = {
     "@typescript-eslint/no-inferrable-types": "warn",
     "no-unused-vars": "off",
     "no-empty": "warn",
-    "@typescript-eslint/no-unused-vars": "warn"
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-explicit-any": "off",
   },
 };
