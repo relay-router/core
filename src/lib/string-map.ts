@@ -19,11 +19,14 @@ export class StringMap {
 
   /**
    * Adds a string value to a key.
+   *
    * If no string is associated with the key, assign the string.
    *
    * If the key is already associated with a string,
    * the value will be an array containing both
    * the previous string and the new string.
+   *
+   * If an array of strings is associated with the key, append the string.
    *
    * @param {string} key the key to associate the new value with.
    * @param {string} value the value to associate the key with.
@@ -39,12 +42,12 @@ export class StringMap {
     }
 
     if (typeof currentValue === "string") {
-      this.#internalMap[key] = [ currentValue, value ];
+      this.#internalMap[key] = [currentValue, value];
       return;
     }
 
     if (Array.isArray(currentValue)) {
-      this.#internalMap[key] = [ ...currentValue, value ];
+      this.#internalMap[key] = [...currentValue, value];
       return;
     }
 
@@ -62,7 +65,7 @@ export class StringMap {
    *
    * If the key is already associated with an array of strings,
    * the value will be an array containing both the elements
-   * of the previous array and the elements of the new array.
+   * of the previous and new arrays.
    *
    * Use {@link StringMap.set}, {@link StringMap.setString},
    * or {@link StringMap.setArray} to replace the value.
@@ -83,12 +86,12 @@ export class StringMap {
     }
 
     if (typeof currentValue === "string") {
-      this.#internalMap[key] = [ currentValue, ...array ];
+      this.#internalMap[key] = [currentValue, ...array];
       return;
     }
 
     if (Array.isArray(currentValue)) {
-      this.#internalMap[key] = [ ...currentValue, ...array ];
+      this.#internalMap[key] = [...currentValue, ...array];
       return;
     }
 
@@ -107,7 +110,7 @@ export class StringMap {
    *
    * @return {void} void
    */
-  public set(key: string, value: string | string []) {
+  public set(key: string, value: string | string[]) {
     this.#internalMap[key] = value;
   }
 
@@ -143,8 +146,15 @@ export class StringMap {
     this.#internalMap[key] = value;
   }
 
-
-  public get(key: string): string | string [] | null {
+  /**
+   * Returns the value associated with the key.
+   * If the key is not found, returns null.
+   *
+   * @param {string} key the key to look up.
+   * @return {(string | string[] | null)}
+   * The value associated with the key.
+   */
+  public get(key: string): string | string[] | null {
     const value = this.#internalMap[key];
 
     if (value !== undefined) {
@@ -154,7 +164,6 @@ export class StringMap {
     return null;
   }
 
-
   /**
    * A function for retrieving a string value.
    *
@@ -162,7 +171,7 @@ export class StringMap {
    *
    * @return {(string | null)}
    * `string` if the value exists.
-   * `null` if the value doesn't exist.
+   * `null` if the key doesn't exist.
    */
   public getString(key: string): string | null {
     const value = this.#internalMap[key];
@@ -181,7 +190,7 @@ export class StringMap {
    *
    * @return {(string[] | null)}
    * `string` if the value exists.
-   * `null` if the value isn't an array or doesn't exist.
+   * `null` if the key isn't an array or doesn't exist.
    */
   public getArray(key: string): string[] | null {
     const value = this.#internalMap[key];
@@ -199,10 +208,11 @@ export class StringMap {
    * It uses the unary plus operator to convert the value.
    *
    * @param {string} key the key for the value.
-   * 
+   *
    * @return {(number | null)}
    * `number` if the value can be converted to a number.
-   * `null` if the value can't be converted to a number or doesn't exist.
+   * `null` if the value can't be converted to a number
+   * or if the key doesn't exist.
    */
   public getNumber(key: string): number | null {
     const value = this.#internalMap[key];
@@ -215,5 +225,16 @@ export class StringMap {
     }
 
     return null;
+  }
+
+  /**
+   * Removes the key from the map.
+   *
+   * @param {string} key the key to remove.
+   *
+   * @return {void} void
+   */
+  public remove(key: string) {
+    delete this.#internalMap[key];
   }
 }

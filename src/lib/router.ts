@@ -4,15 +4,15 @@ import { Route } from "./route";
 import { StringMap } from "./string-map";
 
 // Convenience types
-export interface IRouteCallback {
+interface IRouteCallback {
   (context: RouteContext): unknown;
 }
 
-export interface IRouteMiddleware {
+interface IRouteMiddleware {
   (context: RouteContext, next: IRouteHandler): unknown;
 }
 
-export interface IRouteHandler extends IRouteCallback, IRouteMiddleware {
+interface IRouteHandler extends IRouteCallback, IRouteMiddleware {
 }
 
 
@@ -68,12 +68,8 @@ export class Router {
       this.#previousContext = this.#currentContext;
     }
 
-    const params = {
-      path,
-      saveState: history.pushState
-    };
 
-    this.#currentContext = new RouteContext(params);
+    this.#currentContext = new RouteContext(path,  history.pushState);
 
     for (const enterRoute of this.#enterRoutes) {
       if (enterRoute.test(path)) {
