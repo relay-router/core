@@ -31,7 +31,9 @@ export class StringMap {
    *
    * @param {string} key the key to associate the new value with.
    * @param {string} value the value to associate the key with.
+   *
    * @return {void} void
+   *
    * @throws {Error} if the value isn't a string
    */
   public addStringToKey(key: string, value: string) {
@@ -152,6 +154,7 @@ export class StringMap {
    * If the key is not found, returns null.
    *
    * @param {string} key the key to look up.
+   *
    * @return {(string | string[] | null)}
    * The value associated with the key.
    */

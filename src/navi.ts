@@ -9,7 +9,7 @@ import {
 } from "./lib/utils";
 import { naviPrivateStateKey } from "./lib/state";
 
-type NaviOptions = {
+export type NaviOptions = {
   bindPopState: boolean;
   bindClick: boolean;
   initialDispatch: boolean;

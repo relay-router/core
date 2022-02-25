@@ -3,8 +3,7 @@ import type { RouteContext } from "./route-context";
 import type { IRouteMatchingOptions, IRouteHandlerCollection } from "./router";
 
 /**
- * Represents a route. Internally, it stores
- * a chain of handlers (middleware(s) and an optional callback).
+ * Represents a route. Internally, it stores a chain of handlers.
  *
  * The route can be matched against a path and the handlers
  * will be called in order they appear in the constructor.
@@ -13,9 +12,22 @@ import type { IRouteMatchingOptions, IRouteHandlerCollection } from "./router";
  * ({@link RouteContext.param})field of a {@link RouteContext} instance.
  */
 export class Route {
+  /**
+   * The handlers to call when the route matches.
+   * @private
+   */
   readonly #handlers: IRouteHandlerCollection;
-  readonly #stringPattern: string;
+
+  /**
+   * The pattern to match against.
+   * @private
+   */
   readonly #regex: RegExp;
+
+  /**
+   * The keys of the parameters in the pattern.
+   * @private
+   */
   readonly #keys: Key[];
 
   constructor(
@@ -23,7 +35,6 @@ export class Route {
     handlers: IRouteHandlerCollection,
     matchingOptions?: IRouteMatchingOptions,
   ) {
-    this.#stringPattern = pattern;
     this.#keys = [];
     this.#regex = pathToRegexp(pattern, this.#keys, matchingOptions);
     this.#handlers = handlers;

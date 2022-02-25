@@ -15,6 +15,9 @@ export interface IRouteCallback {
   (context: RouteContext): void;
 }
 
+/**
+ * A helper type for configuring path-to-regexp options.
+ */
 export type IRouteMatchingOptions = ParseOptions &
   TokensToRegexpOptions &
   RegexpToFunctionOptions;
@@ -29,7 +32,7 @@ export type IRouteMatchingOptions = ParseOptions &
  * Useful for creating plugin-type handlers.
  *
  * @param {RouteContext} context The route context.
- * @param {(IRouteCallback | IRouteMiddleware)} next The next handler in the chain.
+ * @param {() => void} next The next handler in the chain.
  */
 export interface IRouteMiddleware {
   (context: RouteContext, next: () => void): void;
@@ -47,6 +50,7 @@ export type IRouteHandlerCollection =
  * The class responsible for in-browser routing to the correct handler.
  */
 export class Router {
+
   /**
    * Path-to-regexp configurations that are required for Navi to work properly.
    */
@@ -73,12 +77,42 @@ export class Router {
     this.#routeMatchingOptions = { ...options, ...this.#requiredOptions };
   }
 
+  /**
+   * The routes to called when entering a path.
+   * @private
+   */
   readonly #enterRoutes: Route[];
+
+  /**
+   * The routes to called when exiting a path.
+   * @private
+   */
   // readonly #exitRoutes: Route[];
+
+  /**
+   * The previous context that was created by the router.
+   * @private
+   */
   #previousContext?: RouteContext;
+
+  /**
+   * The current context that is created by the router
+   * @private
+   */
   #currentContext?: RouteContext;
+
+  /**
+   * The history API to use for the router.
+   * @private
+   */
   readonly #history: History;
 
+  /**
+   * @param {History} history The history object to use for routing.
+   * You normally pass the history object that from the DOM.
+   *
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/History}
+   */
   constructor(history: History) {
     this.#enterRoutes = [];
     this.#history = history;
@@ -192,6 +226,15 @@ export class Router {
     }
   }
 
+  /**
+   * The callback that is passed to the {@link RouteContext} object.
+   * It is used by the current context to save
+   * the state of the router to the history.
+   *
+   * @param state
+   * @param title
+   * @param url
+   */
   private saveState = (state: unknown, title: string, url: string) => {
     this.#history.replaceState(state, title, url);
   };

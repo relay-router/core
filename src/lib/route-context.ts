@@ -9,7 +9,14 @@ export interface IStateSaverCallback {
  * Exposes properties and methods of the current route
  */
 export class RouteContext {
+  /**
+   * The current route state
+   */
   readonly #state: State;
+
+  /**
+   * The callback to save the current route state.
+   */
   readonly #stateSaverCb: IStateSaverCallback;
 
   /**
@@ -128,14 +135,21 @@ export class RouteContext {
   }
 
   /**
-   * Getter property for unmatched portions of the path
-   * @return {string}
+   * Getter property for unmatched portions of the path.
+   *
+   * @return {string} the unmatched portion of the path
    */
   public get unmatched(): string {
     return this.path.replace(this.matched, "");
   }
 
-  private saveState() {
+  /**
+   * Saves the state to the history object. This method is called automatically
+   * when the state is changed.
+   *
+   * @return {void} void
+   */
+  public saveState() {
     this.#stateSaverCb(this.#state, "", this.path);
   }
 }
