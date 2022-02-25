@@ -9,10 +9,36 @@ import {
 } from "./lib/utils";
 import { naviPrivateStateKey } from "./lib/state";
 
-export type NaviOptions = {
-  bindPopState: boolean;
-  bindClick: boolean;
-  initialDispatch: boolean;
+type NaviOptions = {
+  /**
+   * Flag to signal the router to bind a handler
+   * ({@link popstateHandler}) to the popstate event.
+   * This will allow the router to react when the user clicks the back button.
+   *
+   * @type {boolean}
+   *
+   * @default true
+   */
+  bindPopState?: boolean;
+
+  /**
+   * Flag to signal the router to bind a handler
+   * ({@link clickHandler}) to the click events on the `window` object.
+   * This will allow the router to react when the user clicks
+   * an anchor (`<a></a>`) element.
+   *
+   * @type {boolean}
+   * @default true
+   */
+  bindClick?: boolean;
+
+  /**
+   * Flag to signal the router to handle the initial navigation when the page loads.
+   *
+   * @type {boolean}
+   * @default true
+   */
+  initialDispatch?: boolean;
 };
 
 const defaultOptions: NaviOptions = {
@@ -22,9 +48,24 @@ const defaultOptions: NaviOptions = {
 };
 
 let globalRouter: Router | undefined;
+let started = false;
 
-export function start(options?: Partial<NaviOptions>) {
+/**
+ * Start navi with the given options.
+ *
+ * @param {NaviOptions} options The options to start navi with.
+ *
+ * @return {Router} The router instance.
+ *
+ * @throws {Error} If navi is already started or if environment is not supported
+ * (e.g. no history API).
+ */
+export function start(options?: NaviOptions) {
   const combinedOptions = { ...defaultOptions, ...options };
+
+  if (started) {
+    throw new Error("Navi is already started");
+  }
 
   globalRouter = new Router(history);
 
@@ -51,8 +92,17 @@ export function start(options?: Partial<NaviOptions>) {
   if (combinedOptions.bindPopState) {
     window.addEventListener("popstate", popstateHandler);
   }
+
+  started = true;
+
+  return globalRouter;
 }
 
+/**
+ * The default implementation for handling the click event.
+ *
+ * @param {MouseEvent} event
+ */
 export function clickHandler(event: MouseEvent) {
   if (event.target instanceof HTMLAnchorElement && globalRouter) {
     const href = event.target.href;
@@ -62,12 +112,13 @@ export function clickHandler(event: MouseEvent) {
   }
 }
 
+/**
+ * The default implementation for handling the popstate event.
+ *
+ * @param {PopStateEvent} event
+ */
 export function popstateHandler(event: PopStateEvent) {
   const state = event.state;
   if (state && state[naviPrivateStateKey]) {
   }
 }
-
-export default {
-  start,
-};
