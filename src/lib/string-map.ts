@@ -1,9 +1,10 @@
 interface StringRecord {
-  [key: string]: string | string[] | undefined;
+  [key: string]: string | string[];
 }
 
 /**
- * A map for key-to-string or key-to-array-of-string.
+ * A map for key-to-string or key-to-array-of-strings.
+ * Exposes convenient methods for storing and retrieving values from the map.
  */
 export class StringMap {
   readonly #internalMap: StringRecord;
@@ -197,8 +198,7 @@ export class StringMap {
    * `null` if the key isn't an array or doesn't exist.
    */
   public getArray(key: string): string[] | null {
-    if (!this.hasKey(key))
-      return null;
+    if (!this.hasKey(key)) return null;
 
     const value = this.#internalMap[key];
 
@@ -222,8 +222,7 @@ export class StringMap {
    * or if the key doesn't exist.
    */
   public getNumber(key: string): number | null {
-    if (!this.hasKey(key))
-      return null;
+    if (!this.hasKey(key)) return null;
 
     const value = this.getString(key);
 
@@ -248,11 +247,35 @@ export class StringMap {
    * @return {boolean} `true` if the key exists. `false` otherwise.
    */
   public hasKey(key: string): boolean {
-    return this.#internalMap[key] !== undefined && this.#internalMap[key] !== null;
+    return (
+      this.#internalMap[key] !== undefined && this.#internalMap[key] !== null
+    );
   }
 
   /**
-   * Removes the key from the map.
+   * Iterates over the map yielding the values.
+   *
+   * @yields {(string | string[])}
+   */
+  public *[Symbol.iterator]() {
+    for (const [, value] of Object.entries(this.#internalMap)) {
+      yield value;
+    }
+  }
+
+  /**
+   * Iterates over the map, yielding a tuple of key and values.
+   *
+   * @yields {[string, string | string[]]}
+   */
+  public *entries() {
+    for (const keyValue of Object.entries(this.#internalMap)) {
+      yield keyValue;
+    }
+  }
+
+  /**
+   * Removes the key, and it's value from the map.
    *
    * @param {string} key the key to remove.
    *

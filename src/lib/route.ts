@@ -1,36 +1,100 @@
-import { MatchFunction, match, pathToRegexp } from "path-to-regexp";
+import { type Key, pathToRegexp } from "path-to-regexp";
 import type { RouteContext } from "./route-context";
-import type { MatchingOptions } from "./router-options";
-import type { IRouteHandler } from "./router";
+import type { IRouteMatchingOptions, IRouteHandlerCollection } from "./router";
 
+/**
+ * Represents a route. Internally, it stores
+ * a chain of handlers (middleware(s) and an optional callback).
+ *
+ * The route can be matched against a path and the handlers
+ * will be called in order they appear in the constructor.
+ *
+ * It also parses the path and stores the parameters in the param
+ * ({@link RouteContext.param})field of a {@link RouteContext} instance.
+ */
 export class Route {
-  readonly #handlers: IRouteHandler[];
+  readonly #handlers: IRouteHandlerCollection;
   readonly #stringPattern: string;
-  readonly #matcher: MatchFunction;
   readonly #regex: RegExp;
+  readonly #keys: Key[];
 
-  constructor(pattern: string, handlers: IRouteHandler[], matchingOptions: MatchingOptions) {
-    this.#matcher = match(pattern, matchingOptions);
+  constructor(
+    pattern: string,
+    handlers: IRouteHandlerCollection,
+    matchingOptions?: IRouteMatchingOptions,
+  ) {
     this.#stringPattern = pattern;
+    this.#keys = [];
+    this.#regex = pathToRegexp(pattern, this.#keys, matchingOptions);
     this.#handlers = handlers;
-    this.#regex = pathToRegexp(pattern, [], matchingOptions)
   }
 
-  public test(path: string): boolean {
-    return this.#regex.test(path);
+  /**
+   * Parses the params from the path and stores the
+   * results in the {@link RouteContext.param}.
+   *
+   * @param path The path to match against.
+   * @param context The context to use for the matching.
+   */
+  private parseParamsAndStoreToContext(
+    path: string,
+    context: RouteContext,
+  ): void {
+    const matches = this.#regex.exec(path);
+
+    if (matches) {
+      context.matched += matches[0];
+
+      for (let i = 1; i < matches.length; i++) {
+        const key = this.#keys[i - 1];
+        const value = matches[i];
+        if (key) {
+          context.param.addStringToKey(key.name.toString(), value);
+        }
+      }
+    }
   }
 
-  public handle(context: RouteContext) {
+  /**
+   * Handles the route context.
+   *
+   * If the context is handled already, it will throw an error.
+   *
+   * Some properties of the context may be modified
+   * by the route handlers in this route.
+   *
+   * @param {RouteContext} context the context to use for the matching
+   *
+   * @returns true if the route was able to handle the context, false otherwise.
+   *
+   * @throws {Error} If the context is already handled.
+   */
+  public handle(context: RouteContext): boolean {
+    if (context.handled) throw new Error("Context was already handled");
+
+    let pathToHandle = context.unmatched;
+
+    if (!pathToHandle) pathToHandle = "/";
+
+    if (!this.#regex.test(pathToHandle)) return false;
+
+    this.parseParamsAndStoreToContext(pathToHandle, context);
+
     let callNextHandler = false;
 
+    const next = () => {
+      callNextHandler = true;
+    };
+
     for (const handler of this.#handlers) {
-      handler(context, () => {
-        callNextHandler = true;
-      });
+      handler(context, next);
 
       if (!callNextHandler) {
+        context.handled = true;
         break;
       }
     }
+
+    return context.handled;
   }
 }

@@ -1,8 +1,8 @@
 import { StringMap } from "./string-map";
-import { State } from "./state";
+import { naviPrivateStateKey, State } from "./state";
 
 export interface IStateSaverCallback {
-  (state: unknown, url: string, title: string): unknown;
+  (state: unknown, title: string, url: string): unknown;
 }
 
 /**
@@ -62,19 +62,35 @@ export class RouteContext {
   public readonly hash: string;
 
   /**
-   * Flag that indicates if the context is handled by a route
+   * Flag that indicates if the context is completely handled by a route
+   * and the router should not call the next route handlers in the chain.
+   *
+   * You normally should not set this flag manually.
+   * It is automatically set to false by the router when a handler calls
+   * `next` function passed as the second argument.
    *
    * @type {boolean}
    */
   public handled: boolean;
 
   /**
+   * The part of the pathname which is matched by the route path pattern.
+   * Empty string if the pathname hasn't been matched yet.
+   * You should not set this property manually.
+   * It is populated by the router.
+   *
+   * @type {(string | undefined)}
+   */
+  public matched: string;
+
+  /**
    * @param {string} path
    * The full path (pathname + query string + hash)
    * @param {IStateSaverCallback} saveStateFn
    * The function to call when saving state
+   * @param {State?} state The state object retrieved from the history, if any.
    */
-  constructor(path: string, saveStateFn: IStateSaverCallback) {
+  constructor(path: string, saveStateFn: IStateSaverCallback, state?: State) {
     const base = window?.location?.href ?? "https://example.com";
     const url = new URL(path, base);
 
@@ -86,8 +102,10 @@ export class RouteContext {
     this.hash = url.hash;
     this.query = url.searchParams;
     this.handled = false;
+    this.matched = "";
 
-    this.#state = new State({ path: this.path });
+    this.#state =
+      state ?? new State({ [naviPrivateStateKey]: { path: this.path } });
     this.saveState();
   }
 
@@ -102,13 +120,22 @@ export class RouteContext {
 
   /**
    * Retrieve the public state object
+   *
    * @return {unknown} The public state object
    */
   public get state(): unknown {
     return this.#state.publicState;
   }
 
+  /**
+   * Getter property for unmatched portions of the path
+   * @return {string}
+   */
+  public get unmatched(): string {
+    return this.path.replace(this.matched, "");
+  }
+
   private saveState() {
-    this.#stateSaverCb(this.#state, this.path, "");
+    this.#stateSaverCb(this.#state, "", this.path);
   }
 }

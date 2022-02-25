@@ -10,19 +10,29 @@ interface INaviInternalState {
   path: string;
 }
 
-
+/**
+ * A convenience type creating the state object to be stored in history.state.
+ * It exposes a publicState that clients can read or write to be stored in history.state.
+ *
+ */
 export class State {
   public [naviPrivateStateKey]: INaviInternalState;
 
-  constructor(internalState: INaviInternalState) {
-    this[naviPrivateStateKey] = internalState;
+  constructor(unknownState: any) {
+    if (!State.isValid(unknownState)) {
+      throw new Error("Invalid state object");
+    }
+
+    this[naviPrivateStateKey] = unknownState[naviPrivateStateKey];
+    this.publicState = unknownState.publicState;
   }
 
   public publicState: unknown;
-}
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isValidNaviState(unknownState: any): unknownState is State {
-  return unknownState?.[naviPrivateStateKey]?.path
-         && typeof unknownState?.[naviPrivateStateKey]?.path === "string";
+  public static isValid(unknownState: any): unknownState is State {
+    return (
+      unknownState?.[naviPrivateStateKey]?.path &&
+      typeof unknownState?.[naviPrivateStateKey]?.path === "string"
+    );
+  }
 }

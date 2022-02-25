@@ -135,4 +135,12 @@ describe("RouteContext", () => {
       dummyPathWithQueryAndHash,
     );
   });
+
+  test("constructing the RouteContext with an empty string as a path " +
+       "should set the path and pathname to '/'", () => {
+    const routeContext = new RouteContext("", jest.fn());
+
+    expect(routeContext.path).toBe("/");
+    expect(routeContext.pathname).toBe("/");
+  });
 });

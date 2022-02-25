@@ -1,4 +1,3 @@
-import { RouterOptions } from "./lib/router-options";
 import { Router } from "./lib/router";
 
 import {
@@ -8,14 +7,26 @@ import {
   hasWindow,
   makeAbsolutePath,
 } from "./lib/utils";
-import { naviPrivateStateKey } from "./lib/route-context";
+import { naviPrivateStateKey } from "./lib/state";
 
-let globalOptions = new RouterOptions();
+type NaviOptions = {
+  bindPopState: boolean;
+  bindClick: boolean;
+  initialDispatch: boolean;
+};
+
+const defaultOptions: NaviOptions = {
+  bindPopState: true,
+  bindClick: true,
+  initialDispatch: true,
+};
+
 let globalRouter: Router | undefined;
 
-export function start(options?: Partial<RouterOptions>) {
-  globalOptions = { ...options, ...globalOptions };
-  globalRouter = new Router(globalOptions);
+export function start(options?: Partial<NaviOptions>) {
+  const combinedOptions = { ...defaultOptions, ...options };
+
+  globalRouter = new Router(history);
 
   if (!hasWindow) {
     throw new Error("Environment has no window object");
@@ -33,11 +44,11 @@ export function start(options?: Partial<RouterOptions>) {
     throw new Error("Environment has no location object");
   }
 
-  if (globalOptions.bindClick) {
+  if (combinedOptions.bindClick) {
     window.addEventListener("click", clickHandler);
   }
 
-  if (globalOptions.bindPopState) {
+  if (combinedOptions.bindPopState) {
     window.addEventListener("popstate", popstateHandler);
   }
 }
@@ -54,7 +65,6 @@ export function clickHandler(event: MouseEvent) {
 export function popstateHandler(event: PopStateEvent) {
   const state = event.state;
   if (state && state[naviPrivateStateKey]) {
-
   }
 }
 
