@@ -5,14 +5,13 @@ import {
   hasHistory,
   hasLocation,
   hasWindow,
-  makeAbsolutePath,
 } from "./lib/utils";
-import { naviPrivateStateKey } from "./lib/state";
+import { State } from "./lib/state";
 
 type NaviOptions = {
   /**
    * Flag to signal the router to bind a handler
-   * ({@link popstateHandler}) to the popstate event.
+   * ({@link popStateHandler}) to the popstate event.
    * This will allow the router to react when the user clicks the back button.
    *
    * @type {boolean}
@@ -60,14 +59,12 @@ let started = false;
  * @throws {Error} If navi is already started or if environment is not supported
  * (e.g. no history API).
  */
-export function start(options?: NaviOptions) {
+function start(options?: NaviOptions) {
   const combinedOptions = { ...defaultOptions, ...options };
 
   if (started) {
     throw new Error("Navi is already started");
   }
-
-  globalRouter = new Router(history);
 
   if (!hasWindow) {
     throw new Error("Environment has no window object");
@@ -85,40 +82,68 @@ export function start(options?: NaviOptions) {
     throw new Error("Environment has no location object");
   }
 
+  globalRouter = new Router({ nested: false, history });
+
+
   if (combinedOptions.bindClick) {
     window.addEventListener("click", clickHandler);
   }
 
   if (combinedOptions.bindPopState) {
-    window.addEventListener("popstate", popstateHandler);
+    window.addEventListener("popstate", popStateHandler);
   }
 
   started = true;
-
-  return globalRouter;
 }
 
 /**
- * The default implementation for handling the click event.
+ * The default implementation for handling the click events.
+ * It will look for {@link HTMLAnchorElement} and their `href` property
+ * as the path to navigate to.
+ *
+ * Using the {@link HTMLAnchorElement.href} property ensures that the
+ * path is resolved to an absolute path because Navi doesn't support
+ * relative paths out of the box.
  *
  * @param {MouseEvent} event
  */
-export function clickHandler(event: MouseEvent) {
-  if (event.target instanceof HTMLAnchorElement && globalRouter) {
-    const href = event.target.href;
-    const path = makeAbsolutePath(href);
+function clickHandler(event: MouseEvent) {
+  if (!started || !globalRouter) throw new Error("Navi has not started");
 
-    globalRouter.navigateTo(path);
+  if (event.target instanceof HTMLAnchorElement) {
+    const href = event.target.href;
+
+    navigateTo(href);
   }
 }
 
 /**
- * The default implementation for handling the popstate event.
+ * The default implementation for handling the popstate events.
  *
  * @param {PopStateEvent} event
  */
-export function popstateHandler(event: PopStateEvent) {
+function popStateHandler(event: PopStateEvent) {
   const state = event.state;
-  if (state && state[naviPrivateStateKey]) {
-  }
+
+  if (!started || !globalRouter) throw new Error("Navi has not started");
+
+  if (!State.isValid(state)) throw new Error("Invalid state object");
+
+  globalRouter.navigateWithState(state);
 }
+
+/**
+ * Navigate to the given path. It can only handle absolute paths.
+ * If the path is relative, it will be resolved to an absolute path.
+ *
+ * @param {string} absolutePath The path to navigate to.
+ *
+ * @throws {Error} If Navi has not started.
+ */
+function navigateTo(absolutePath: string) {
+  if (!started || !globalRouter) throw new Error("Navi has not started");
+
+  globalRouter.navigateTo(absolutePath);
+}
+
+export { type NaviOptions, start, clickHandler, popStateHandler, navigateTo };

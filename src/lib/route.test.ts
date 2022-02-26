@@ -1,14 +1,26 @@
 import { Route } from "./route";
 import { RouteContext } from "./route-context";
 import type { IRouteCallback, IRouteMiddleware } from "./router";
+import { naviPrivateStateKey, State } from "./state";
 
 describe("Route", () => {
   const dummyPathWithQueryAndHash =
     "/path/idValue/1/lastValue?query=value#hash";
   const naviMatchingOptionsDefaults = { end: false };
 
+  function createStateFromPath(path: string): State {
+    return {
+      [naviPrivateStateKey]: {
+        path,
+      },
+    };
+  }
+
   test("handle should return true for paths that it can handle", () => {
-    const context = new RouteContext(dummyPathWithQueryAndHash, jest.fn());
+    const context = new RouteContext(
+      createStateFromPath(dummyPathWithQueryAndHash),
+      jest.fn(),
+    );
     const route = new Route("/path", [jest.fn()], naviMatchingOptionsDefaults);
 
     const handled = route.handle(context);
@@ -20,7 +32,10 @@ describe("Route", () => {
     "if the last handler called by handle function calls next, " +
       "it means the context isn't handled",
     () => {
-      const context = new RouteContext(dummyPathWithQueryAndHash, jest.fn());
+      const context = new RouteContext(
+        createStateFromPath(dummyPathWithQueryAndHash),
+        jest.fn(),
+      );
       const route = new Route(
         "/path",
         [jest.fn((context, next) => next()) as IRouteMiddleware],
@@ -37,7 +52,10 @@ describe("Route", () => {
     "if the last handler doesn't call next, " +
       "it means the context is handled",
     () => {
-      const context = new RouteContext(dummyPathWithQueryAndHash, jest.fn());
+      const context = new RouteContext(
+        createStateFromPath(dummyPathWithQueryAndHash),
+        jest.fn(),
+      );
       const route = new Route(
         "/path",
         [jest.fn() as IRouteMiddleware],
@@ -51,7 +69,10 @@ describe("Route", () => {
   );
 
   test("handle should return false for paths that it cannot handle", () => {
-    const context = new RouteContext(dummyPathWithQueryAndHash, jest.fn());
+    const context = new RouteContext(
+      createStateFromPath(dummyPathWithQueryAndHash),
+      jest.fn(),
+    );
     const route = new Route(
       "/otherPath",
       [jest.fn()],
@@ -64,7 +85,10 @@ describe("Route", () => {
   });
 
   test("handle should parse params from path", () => {
-    const context = new RouteContext(dummyPathWithQueryAndHash, jest.fn());
+    const context = new RouteContext(
+      createStateFromPath(dummyPathWithQueryAndHash),
+      jest.fn(),
+    );
     const route = new Route(
       "/path/:id",
       [jest.fn()],
@@ -77,7 +101,10 @@ describe("Route", () => {
   });
 
   test("handle should parse params from path with multiple params", () => {
-    const context = new RouteContext(dummyPathWithQueryAndHash, jest.fn());
+    const context = new RouteContext(
+      createStateFromPath(dummyPathWithQueryAndHash),
+      jest.fn(),
+    );
     const route = new Route(
       "/path/:id/:id2",
       [jest.fn()],
@@ -93,7 +120,10 @@ describe("Route", () => {
   test(
     "handle should be able to parse params that do not " + "appear in sequence",
     () => {
-      const context = new RouteContext(dummyPathWithQueryAndHash, jest.fn());
+      const context = new RouteContext(
+        createStateFromPath(dummyPathWithQueryAndHash),
+        jest.fn(),
+      );
       const route = new Route(
         "/path/:id/1/:lastParam",
         [jest.fn()],
@@ -110,7 +140,10 @@ describe("Route", () => {
   test(
     "handle should put the portion it matched with " + "in the context",
     () => {
-      const context = new RouteContext(dummyPathWithQueryAndHash, jest.fn());
+      const context = new RouteContext(
+        createStateFromPath(dummyPathWithQueryAndHash),
+        jest.fn(),
+      );
       const route = new Route(
         "/path/:id/1/:lastParam",
         [jest.fn()],
@@ -127,7 +160,10 @@ describe("Route", () => {
     "handle should put the portion it matched with " +
       "in the context even if it has query and hash",
     () => {
-      const context = new RouteContext(dummyPathWithQueryAndHash, jest.fn());
+      const context = new RouteContext(
+        createStateFromPath(dummyPathWithQueryAndHash),
+        jest.fn(),
+      );
       const route = new Route(
         "/path/:id/1/:lastParam",
         [jest.fn()],
@@ -144,7 +180,10 @@ describe("Route", () => {
     "Route should be able to handle context that are partially handled" +
       " by other routes if it can match the remainder of the unmatched path",
     () => {
-      const context = new RouteContext(dummyPathWithQueryAndHash, jest.fn());
+      const context = new RouteContext(
+        createStateFromPath(dummyPathWithQueryAndHash),
+        jest.fn(),
+      );
       const route1 = new Route(
         "/path",
         [jest.fn((context, next) => next()) as IRouteMiddleware],
@@ -186,7 +225,10 @@ describe("Route", () => {
     "a route handler should not be called if the preceding " +
       "handler didn't call next",
     () => {
-      const context = new RouteContext(dummyPathWithQueryAndHash, jest.fn());
+      const context = new RouteContext(
+        createStateFromPath(dummyPathWithQueryAndHash),
+        jest.fn(),
+      );
 
       const handler1 = jest.fn(() => {}) as IRouteMiddleware;
 
@@ -208,7 +250,10 @@ describe("Route", () => {
     "a route handler should be called " +
       "if the preceding handler called next",
     () => {
-      const context = new RouteContext(dummyPathWithQueryAndHash, jest.fn());
+      const context = new RouteContext(
+        createStateFromPath(dummyPathWithQueryAndHash),
+        jest.fn(),
+      );
 
       const handler1 = jest.fn((context, next) => {
         next();
@@ -229,7 +274,10 @@ describe("Route", () => {
   );
 
   test("handle will throw an error if the context is already handled", () => {
-    const context = new RouteContext(dummyPathWithQueryAndHash, jest.fn());
+    const context = new RouteContext(
+      createStateFromPath(dummyPathWithQueryAndHash),
+      jest.fn(),
+    );
     const route = new Route("/path", [jest.fn()], naviMatchingOptionsDefaults);
 
     route.handle(context);

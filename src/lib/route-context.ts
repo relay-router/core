@@ -1,5 +1,6 @@
 import { StringMap } from "./string-map";
-import { naviPrivateStateKey, State } from "./state";
+import type { State } from "./state";
+import { naviPrivateStateKey } from "./state";
 
 export interface IStateSaverCallback {
   (state: unknown, title: string, url: string): unknown;
@@ -91,15 +92,15 @@ export class RouteContext {
   public matched: string;
 
   /**
-   * @param {string} path
-   * The full path (pathname + query string + hash)
-   * @param {IStateSaverCallback} saveStateFn
-   * The function to call when saving state
-   * @param {State?} state The state object retrieved from the history, if any.
+   * Constructs a new RouteContext instance from the given state
+   * and a callback when saving the state.
+   *
+   * @param {State} state The state object retrieved from the history, if any.
+   * @param {IStateSaverCallback} saveStateFn The function to call when saving state
    */
-  constructor(path: string, saveStateFn: IStateSaverCallback, state?: State) {
+  constructor(state: State, saveStateFn: IStateSaverCallback) {
     const base = window?.location?.href ?? "https://example.com";
-    const url = new URL(path, base);
+    const url = new URL(state[naviPrivateStateKey].path, base);
 
     this.#stateSaverCb = saveStateFn;
     this.param = new StringMap();
@@ -110,10 +111,7 @@ export class RouteContext {
     this.query = url.searchParams;
     this.handled = false;
     this.matched = "";
-
-    this.#state =
-      state ?? new State({ [naviPrivateStateKey]: { path: this.path } });
-    this.saveState();
+    this.#state = state;
   }
 
   /**

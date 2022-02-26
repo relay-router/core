@@ -4,6 +4,8 @@
  * const naviState = history.state[naviPrivateStateKey];
  * ```
  */
+import { NaviError } from "./navi-error";
+
 export const naviPrivateStateKey = "__NaviPrivateStateKey_DO_NOT_TAMPER__";
 
 /**
@@ -31,18 +33,29 @@ export class State {
   /**
    * @param {any} unknownState the object to create the state from.
    *
-   * @throws {Error} if the object is not a valid state.
+   * @throws {NaviError} if the object is not a valid state.
    */
   constructor(unknownState: any) {
     if (!State.isValid(unknownState)) {
-      throw new Error("Invalid state object");
+      throw new NaviError("Invalid state object");
     }
 
     this[naviPrivateStateKey] = unknownState[naviPrivateStateKey];
     this.publicState = unknownState.publicState;
   }
 
-  public publicState: unknown;
+  /**
+   * A factory method that creates a new state object with the given private state.
+   *
+   * @param privateState
+   */
+  public static fromPrivateState(privateState: INaviPrivateState): State {
+    return new State({
+      [naviPrivateStateKey]: privateState,
+    });
+  }
+
+  public publicState?: unknown;
 
   /**
    * Returns true if the given object is a valid state object.

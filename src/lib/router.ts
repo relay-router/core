@@ -5,6 +5,8 @@ import type {
   TokensToRegexpOptions,
   RegexpToFunctionOptions,
 } from "path-to-regexp";
+import { State } from "./state";
+import { NaviError } from "./navi-error";
 
 /**
  * The final handler for a route.
@@ -46,11 +48,37 @@ export type IRouteHandlerCollection =
   | IRouteMiddleware[]
   | [...IRouteMiddleware[], IRouteCallback];
 
+type RouterParams =
+  | {
+      nested: true;
+      history?: History;
+    }
+  | {
+      nested: false;
+      history: History;
+    };
+
+interface INestedRouterMiddleware extends IRouteMiddleware {
+  route: Router["route"];
+  routeExit: Router["routeExit"];
+}
+
 /**
  * The class responsible for in-browser routing to the correct handler.
+ *
+ * The navigation is done using a series of steps:
+ * 1. The {@link Router.navigateTo} method is called with an absolute path,
+ *    which creates a {@link State} instance with the path.
+ *    `navigateTo` will call `pushState` on the history object
+ *    with the state instance and absolute path. Next, it will call
+ *    {@link Router.navigateWithState} passed with the state instance.
+ * 2. {@link Router.navigateWithState} will create a {@link RouteContext}
+ *    instance from the state instance.
+ *    It will call {@link Route.navigateWithContext} with the context instance.
+ * 3. {@link Route.navigateWithContext} will find a matching route and call
+ *    its handler with the context instance.
  */
 export class Router {
-
   /**
    * Path-to-regexp configurations that are required for Navi to work properly.
    */
@@ -87,36 +115,47 @@ export class Router {
    * The routes to called when exiting a path.
    * @private
    */
-  // readonly #exitRoutes: Route[];
-
-  /**
-   * The previous context that was created by the router.
-   * @private
-   */
-  #previousContext?: RouteContext;
+  readonly #exitRoutes: Route[];
 
   /**
    * The current context that is created by the router
    * @private
    */
-  #currentContext?: RouteContext;
+  #context?: RouteContext;
 
   /**
    * The history API to use for the router.
+   * This will be undefined if the router is a nested router.
+   *
    * @private
    */
-  readonly #history: History;
+  readonly #history?: History;
 
   /**
-   * @param {History} history The history object to use for routing.
-   * You normally pass the history object that from the DOM.
+   * Indicates whether the router is nested or not.
    *
-   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/History}
+   * @private
    */
-  constructor(history: History) {
+  readonly #nested: boolean;
+
+  /**
+   * @param {RouterParams} params The parameter object for the router.
+   * If `nested` is true, the router will be nested and
+   * the history object can be omitted.
+   * If `nested` is false, the router will not be nested and
+   * the history object must be provided.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/History
+   */
+  constructor({ nested, history }: RouterParams) {
+    this.#nested = nested;
+
+    if (!nested) {
+      this.#history = history;
+    }
+
     this.#enterRoutes = [];
-    this.#history = history;
-    // this.#exitRoutes = [];
+    this.#exitRoutes = [];
   }
 
   /**
@@ -178,56 +217,91 @@ export class Router {
     return this;
   }
 
-  // public routeExit(
-  //   pattern: string,
-  //   ...handlers: IRouteHandlerCollection
-  // ) {
-  //
-  //   this.#exitRoutes.push(
-  //     new Route(pattern, handlers, this.#options.matchingOptions),
-  //   );
-  //
-  //   return this;
-  // }
+  public routeExit(pattern: string, ...handlers: IRouteHandlerCollection) {
+    this.#exitRoutes.push(
+      new Route(pattern, handlers, Router.#routeMatchingOptions),
+    );
+
+    return this;
+  }
 
   /**
-   * Navigates to the given path, finding the any route with a pattern that
-   * can match the given path. If a route is found, it will call its handler(s).
-   *
-   * If the route didn't fully handle the path (e.g. the last handler of the
-   * route called next(), or a handler manually
-   * set the {@link RouteContext.handled} to false),
-   * it will find another route that can match the path.
-   *
-   * If all the routes have been tried, and none of them handled the path,
-   * it will throw an error.
+   * Navigates to the given path, it will create a new {@link State} instance with the given path.
+   * It will then call `pushState` on the history object with the state and path.
+   * Lastly, it will delegate the next steps to {@link Router.navigateWithState}
+   * by calling it with the state instance.
    *
    * @param {string} absolutePath should be an absolute path
    *
-   * @throws {Error} If no route can handle the path.
+   * @throws {NaviError} If called on a nested router.
    */
   public navigateTo(absolutePath: string) {
-    this.#history.pushState(null, "", absolutePath);
+    if (this.#nested || !this.#history)
+      throw new NaviError(
+        "Navigation using absolute paths is not supported on nested routers. " +
+          "Use the parent router to navigate with absolute paths.",
+      );
 
-    if (this.#currentContext) {
-      this.#previousContext = this.#currentContext;
-    }
+    const state = State.fromPrivateState({ path: absolutePath });
+    this.#history.pushState(state, "", absolutePath);
 
-    this.#currentContext = new RouteContext(absolutePath, this.saveState);
+    this.navigateWithState(state);
+  }
 
+  /**
+   * Creates a context for the router using passed state, then call handlers
+   * for context.
+   *
+   * This is useful when you want to restore the context from the state
+   * retrieved from the popstate event.
+   *
+   * This is used by {@link popStateHandler}.
+   *
+   * @param {State} state The state to restore the context from.
+   *
+   * @throw {Error} If called on a nested router.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/popstate_event
+   */
+  public navigateWithState(state: State) {
+    if (this.#nested)
+      throw new NaviError(
+        "Navigation using states is not supported on nested routers. " +
+          "Use the parent router to navigate with states.",
+      );
+
+    if (!this.#history)
+      throw new NaviError(
+        "Navigation using states is not supported on routers without a history object. " +
+          "Use the parent router to navigate with states.",
+      );
+
+    this.#context = new RouteContext(state, this.#saveState);
+    this.navigateWithContext(this.#context);
+  }
+
+  /**
+   * Calls the handlers for the given context.
+   *
+   * @param context
+   *
+   * @throws {Error} If no {@link RouteContext.handled} is still false
+   * after calling all the handlers.
+   */
+  public navigateWithContext(context: RouteContext) {
     for (const route of this.#enterRoutes) {
-      if (route.handle(this.#currentContext)) {
-        return;
-      }
+      if (route.handle(context)) return;
     }
 
-    if (!this.#currentContext.handled) {
-      throw new Error(`No was able to handle the path: ${absolutePath}`);
-    }
+    if (!context.handled)
+      throw new NaviError(`No route matched: ${context.path}`, context);
   }
 
   /**
    * The callback that is passed to the {@link RouteContext} object.
+   * Arrow function, so it's permanently bound to the router even when passed
+   * as an argument.
+   *
    * It is used by the current context to save
    * the state of the router to the history.
    *
@@ -235,15 +309,26 @@ export class Router {
    * @param title
    * @param url
    */
-  private saveState = (state: unknown, title: string, url: string) => {
-    this.#history.replaceState(state, title, url);
+  readonly #saveState = (state: unknown, title: string, url: string) => {
+    if (!this.#history)
+      throw new NaviError(
+        "Saved a state to the history, but the router has no history object.",
+      );
+
+    this.#history?.replaceState(state, title, url);
   };
 
-  // public exitFrom(path: string) {}
+  public static createRouterMiddleware(): INestedRouterMiddleware {
+    const router = new Router({ nested: true });
 
-  //
-  // public createMiddleware(): IRouteMiddleware {
-  //   return (context: RouteContext, next: IRouteHandler) => {
-  //   };
-  // }
+    const middleware = (context: RouteContext, next: () => void) => {
+      router.navigateWithContext(context);
+      if (!context.handled) next();
+    };
+
+    middleware.route = router.route.bind(router);
+    middleware.routeExit = router.routeExit.bind(router);
+
+    return middleware;
+  }
 }
