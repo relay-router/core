@@ -1,6 +1,10 @@
 import { type Key, pathToRegexp } from "path-to-regexp";
 import type { RouteContext } from "./route-context";
-import type { IRouteMatchingOptions, IRouteHandlerCollection } from "./router";
+import type {
+  IRouteMatchingOptions,
+  IRouteHandlerCollection,
+  IRouteMiddleware, IRouteCallback,
+} from "./router";
 import { RouterError } from "./router-error";
 
 /**
@@ -17,7 +21,7 @@ export class Route {
    * The handlers to call when the route matches.
    * @private
    */
-  readonly #handlers: IRouteHandlerCollection;
+  readonly #handlers: (IRouteMiddleware | IRouteCallback)[];
 
   /**
    * The pattern to match against.
@@ -65,6 +69,15 @@ export class Route {
   }
 
   /**
+   * Adds additional handlers to the route.
+   *
+   * @param handlers
+   */
+  public addHandler(...handlers: IRouteHandlerCollection): void {
+    this.#handlers.push(...handlers);
+  }
+
+  /**
    * Handles the route context.
    *
    * If the context is handled already, it will throw an error.
@@ -97,14 +110,14 @@ export class Route {
     };
 
     for (const handler of this.#handlers) {
+      callNextHandler = false;
       handler(context, next);
 
       if (!callNextHandler) {
-        context.handled = true;
-        break;
+        return context.handled = true;
       }
     }
 
-    return context.handled;
+    return false;
   }
 }

@@ -44,22 +44,31 @@ export interface IRouteMiddleware {
  * The container for storing the chain of handlers for a route.
  */
 export type IRouteHandlerCollection =
-  | [IRouteCallback]
+  | [ IRouteCallback ]
   | IRouteMiddleware[]
-  | [...IRouteMiddleware[], IRouteCallback];
+  | [ ...IRouteMiddleware[], IRouteCallback ];
 
 type RouterParams =
   | {
-      nested: true;
-      history?: History;
-    }
+  nested: true;
+  history?: History;
+}
   | {
-      nested: false;
-      history: History;
-    };
+  nested: false;
+  history: History;
+};
 
 interface INestedRouterMiddleware extends IRouteMiddleware {
   route: Router["route"];
+}
+
+interface IRouteHandlerAdder {
+  /**
+   * Adds more handlers to the end of the chain.
+   *
+   * @param handlers
+   */
+  add(...handlers: IRouteHandlerCollection): IRouteHandlerAdder;
 }
 
 /**
@@ -151,66 +160,33 @@ export class Router {
   }
 
   /**
-   * Adds a middleware to the route.
-   *
-   * @param {string} pattern The route pattern.
-   * @param {IRouteMiddleware} middleware The middleware to add.
-   *
-   * @returns {this} The router, to allow chaining method calls.
-   */
-  public route(pattern: string, middleware: IRouteMiddleware): this;
-
-  /**
-   * Add a middlewares to the route.
-   *
-   * @param {string} pattern The route pattern.
-   * @param {...IRouteMiddleware} middlewares The middlewares to add.
-   *
-   * @returns {this} The router, to allow chaining method calls.
-   */
-  public route(pattern: string, ...middlewares: IRouteMiddleware[]): this;
-
-  /**
-   * Adds a callback to the route.
-   *
-   * @param {string} pattern The route pattern
-   * @param {IRouteCallback} callback the route callback
-   *
-   * @returns {this} The router, to allow chaining method calls.
-   */
-  public route(pattern: string, callback: IRouteCallback): this;
-
-  /**
-   * Adds a route to the router.
-   *
-   * @param {string} pattern The route pattern.
-   * @param {[...IRouteMiddleware[], IRouteCallback]} handlers The route handlers.
-   *
-   * @returns {this} The router, to allow chaining method calls.
-   */
-  public route(
-    pattern: string,
-    ...handlers: [...IRouteMiddleware[], IRouteCallback]
-  ): this;
-
-  /**
    * Adds a route to the router.
    *
    * @param {string} pattern The route pattern.
    * @param {...IRouteHandlerCollection} handlers The route handlers.
    *
-   * @returns {this} The router, to allow chaining method calls.
+   * @returns {IRouteHandlerAdder} A handler-adder for chaining calls.
    */
-  public route(pattern: string, ...handlers: IRouteHandlerCollection) {
-    this.#routes.push(
-      new Route(
-        Router.#transformPathPattern(pattern),
-        handlers,
-        Router.#routeMatchingOptions,
-      ),
+  public route(
+    pattern: string,
+    ...handlers: IRouteHandlerCollection): IRouteHandlerAdder {
+
+    const route = new Route(
+      Router.#transformPathPattern(pattern),
+      handlers,
+      Router.#routeMatchingOptions,
     );
 
-    return this;
+    this.#routes.push(
+      route,
+    );
+
+    return {
+      add(...handlers: IRouteHandlerCollection) {
+        route.addHandler(...handlers);
+        return this;
+      },
+    };
   }
 
   /**
@@ -236,7 +212,7 @@ export class Router {
     if (this.#nested)
       throw new RouterError(
         "Navigation using absolute paths is not supported on nested routers. " +
-          "Use the parent router to navigate with absolute paths.",
+        "Use the parent router to navigate with absolute paths.",
       );
 
     if (!this.#history)
@@ -267,13 +243,13 @@ export class Router {
     if (this.#nested)
       throw new RouterError(
         "Navigation using states is not supported on nested routers. " +
-          "Use the parent router to navigate with states.",
+        "Use the parent router to navigate with states.",
       );
 
     if (!this.#history)
       throw new RouterError(
         "Navigation using states is not supported on routers without a history object. " +
-          "Use the parent router to navigate with states.",
+        "Use the parent router to navigate with states.",
       );
 
     this.#context = new RouteContext(state, this.#saveState);
