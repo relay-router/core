@@ -156,27 +156,33 @@ describe("StringMap", () => {
     );
   });
 
-  test("addArrayToKey for key that exists with a string value will " +
-       "return a new array with both the current and previous value", () => {
-    const map = createPopulatedMap();
+  test(
+    "addArrayToKey for key that exists with a string value will " +
+      "return a new array with both the current and previous value",
+    () => {
+      const map = createPopulatedMap();
 
-    map.addArrayToKey("keyForString", ["new value"]);
+      map.addArrayToKey("keyForString", ["new value"]);
 
-    expect(map.get("keyForString")).toEqual(
-      expect.arrayContaining(["string value", "new value"]),
-    );
-  });
+      expect(map.get("keyForString")).toEqual(
+        expect.arrayContaining(["string value", "new value"]),
+      );
+    },
+  );
 
-  test("addArrayToKey for key with an array value " +
-       "will append the new array value", () => {
-    const map = createPopulatedMap();
+  test(
+    "addArrayToKey for key with an array value " +
+      "will append the new array value",
+    () => {
+      const map = createPopulatedMap();
 
-    map.addArrayToKey("keyForArray", ["new value"]);
+      map.addArrayToKey("keyForArray", ["new value"]);
 
-    expect(map.getArray("keyForArray")).toEqual(
-      expect.arrayContaining(["array value", "new value"]),
-    );
-  });
+      expect(map.getArray("keyForArray")).toEqual(
+        expect.arrayContaining(["array value", "new value"]),
+      );
+    },
+  );
 
   test("remove for key that exists will delete it", () => {
     const map = createPopulatedMap();

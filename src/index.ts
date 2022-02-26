@@ -1,11 +1,5 @@
 import { Router } from "./lib/router";
 
-import {
-  hasDocument,
-  hasHistory,
-  hasLocation,
-  hasWindow,
-} from "./lib/utils";
 import { State } from "./lib/state";
 
 type RutaOptions = {
@@ -66,24 +60,23 @@ function start(options?: RutaOptions) {
     throw new Error("Ruta is already started");
   }
 
-  if (!hasWindow) {
+  if (!window) {
     throw new Error("Environment has no window object");
   }
 
-  if (!hasDocument) {
+  if (!document) {
     throw new Error("Environment has no document object");
   }
 
-  if (!hasHistory) {
+  if (!history) {
     throw new Error("Environment has no history object");
   }
 
-  if (!hasLocation) {
+  if (!location) {
     throw new Error("Environment has no location object");
   }
 
   globalRouter = new Router({ nested: false, history });
-
 
   if (combinedOptions.bindClick) {
     window.addEventListener("click", clickHandler);

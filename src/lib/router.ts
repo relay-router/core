@@ -6,7 +6,7 @@ import type {
   RegexpToFunctionOptions,
 } from "path-to-regexp";
 import { State } from "./state";
-import { NaviError } from "./navi-error";
+import { RouterError } from "./router-error";
 
 /**
  * The final handler for a route.
@@ -79,7 +79,7 @@ interface INestedRouterMiddleware extends IRouteMiddleware {
  */
 export class Router {
   /**
-   * Path-to-regexp configurations that are required for Navi to work properly.
+   * Path-to-regexp configurations that are required for Router to work properly.
    */
   static #requiredOptions: IRouteMatchingOptions = {
     end: false,
@@ -95,8 +95,8 @@ export class Router {
    * Configures the router with the given options.
    * These options are passed to function from path-to-regexp.
    * The router has reasonable defaults for all options.
-   * Note that some options will not override Navi's defaults as they are flags
-   * that are needed to be set to specific value for Navi to work properly.
+   * Note that some options will not override Router's defaults as they are flags
+   * that are needed to be set to specific value for the Router to work properly.
    *
    * @param {IRouteMatchingOptions} options The options to configure the router with.
    */
@@ -230,17 +230,17 @@ export class Router {
    *
    * @param {string} absolutePath should be an absolute path
    *
-   * @throws {NaviError} If called on a nested router.
+   * @throws {RouterError} If called on a nested router.
    */
   public navigateTo(absolutePath: string) {
     if (this.#nested)
-      throw new NaviError(
+      throw new RouterError(
         "Navigation using absolute paths is not supported on nested routers. " +
           "Use the parent router to navigate with absolute paths.",
       );
 
     if (!this.#history)
-      throw new NaviError("No history object was provided to the router");
+      throw new RouterError("No history object was provided to the router");
 
     const state = State.fromPrivateState({ path: absolutePath });
     this.#history.pushState(state, "", absolutePath);
@@ -265,13 +265,13 @@ export class Router {
    */
   public navigateWithState(state: State) {
     if (this.#nested)
-      throw new NaviError(
+      throw new RouterError(
         "Navigation using states is not supported on nested routers. " +
           "Use the parent router to navigate with states.",
       );
 
     if (!this.#history)
-      throw new NaviError(
+      throw new RouterError(
         "Navigation using states is not supported on routers without a history object. " +
           "Use the parent router to navigate with states.",
       );
@@ -294,7 +294,7 @@ export class Router {
     }
 
     if (!context.handled)
-      throw new NaviError(`No route matched: ${context.path}`, context);
+      throw new RouterError(`No route matched: ${context.path}`, context);
   }
 
   /**
@@ -315,7 +315,7 @@ export class Router {
     url: string,
   ) => {
     if (!this.#history)
-      throw new NaviError(
+      throw new RouterError(
         "Saved a state to the history, but the router has no history object.",
       );
 

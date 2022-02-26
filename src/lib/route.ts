@@ -1,7 +1,7 @@
 import { type Key, pathToRegexp } from "path-to-regexp";
 import type { RouteContext } from "./route-context";
 import type { IRouteMatchingOptions, IRouteHandlerCollection } from "./router";
-import { NaviError } from "./navi-error";
+import { RouterError } from "./router-error";
 
 /**
  * Represents a route. Internally, it stores a chain of handlers.
@@ -48,10 +48,7 @@ export class Route {
    * @param path The path to match against.
    * @param context The context to use for the matching.
    */
-  #parseParamsAndStoreToContext(
-    path: string,
-    context: RouteContext,
-  ): void {
+  #parseParamsAndStoreToContext(path: string, context: RouteContext): void {
     const matches = this.#regex.exec(path);
 
     if (matches) {
@@ -79,11 +76,11 @@ export class Route {
    *
    * @returns true if the route was able to handle the context, false otherwise.
    *
-   * @throws {NaviError} If the context is already handled.
+   * @throws {RouterError} If the context is already handled.
    */
   public handle(context: RouteContext): boolean {
     if (context.handled)
-      throw new NaviError("Context was already handled", context);
+      throw new RouterError("Context was already handled", context);
 
     let pathToHandle = context.unmatched;
 

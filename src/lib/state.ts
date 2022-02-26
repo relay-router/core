@@ -1,18 +1,18 @@
-import { NaviError } from "./navi-error";
+import { RouterError } from "./router-error";
 
 /**
- * Key string for accessing Navi's private state stored in history.state.
+ * Key string for accessing Router's private state stored in history.state.
  * @example```typescript
- * const naviState = history.state[naviPrivateStateKey];
+ * const rutaState = history.state[rutaPrivateStateKey];
  * ```
  */
-export const naviPrivateStateKey = "__NaviPrivateStateKey_DO_NOT_TAMPER__";
+export const routerPrivateStateKey = "__RouterPrivateStateKey_DO_NOT_TAMPER__";
 
 /**
- * The structure of the `Navi's` private state
- * stored in `history.state[naviPrivateStateKey]`.
+ * The structure of the Router's private state
+ * stored in `history.state[rutaPrivateStateKey]`.
  */
-export interface INaviPrivateState {
+export interface IRouterPrivateState {
   /**
    * The path during which the state was created.
    */
@@ -22,16 +22,16 @@ export interface INaviPrivateState {
 /**
  * A convenience type creating the state object to be stored in history.state.
  * Contains a {@link State.publicState} field where the public state is stored,
- * And a field where Navi's private state is stored, which can be accessed
- * using the {@link naviPrivateStateKey} constant.
+ * And a field where Router's private state is stored, which can be accessed
+ * using the {@link routerPrivateStateKey} constant.
  *
  * This goes without saying, the private state is not meant to be tampered with.
  */
 export class State {
   /**
-   * The private state to be used internally by Navi.
+   * The private state to be used internally by Router.
    */
-  public [naviPrivateStateKey]: INaviPrivateState;
+  public [routerPrivateStateKey]: IRouterPrivateState;
 
   /**
    * The public state for clients to access.
@@ -41,14 +41,14 @@ export class State {
   /**
    * @param {any} unknownState the object to create the state from.
    *
-   * @throws {NaviError} if the object is not a valid state.
+   * @throws {RouterError} if the object is not a valid state.
    */
   constructor(unknownState: any) {
     if (!State.isValid(unknownState)) {
-      throw new NaviError("Invalid state object");
+      throw new RouterError("Invalid state object");
     }
 
-    this[naviPrivateStateKey] = unknownState[naviPrivateStateKey];
+    this[routerPrivateStateKey] = unknownState[routerPrivateStateKey];
     this.publicState = unknownState.publicState;
   }
 
@@ -57,9 +57,9 @@ export class State {
    *
    * @param privateState
    */
-  public static fromPrivateState(privateState: INaviPrivateState): State {
+  public static fromPrivateState(privateState: IRouterPrivateState): State {
     return new State({
-      [naviPrivateStateKey]: privateState,
+      [routerPrivateStateKey]: privateState,
     });
   }
 
@@ -69,6 +69,6 @@ export class State {
    * @param {any} unknownState the object to validate
    */
   public static isValid(unknownState: any): unknownState is State {
-    return typeof unknownState?.[naviPrivateStateKey]?.path === "string";
+    return typeof unknownState?.[routerPrivateStateKey]?.path === "string";
   }
 }

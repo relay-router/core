@@ -1,7 +1,10 @@
 {
-  "name": "navi",
+  "name": "eel",
   "version": "0.0.1",
   "description": "A Simple Framework-Agnostic Routing Library",
+  "main": "index.js",
+  "types": "commonjs",
+  "type": "commonjs",
   "scripts": {
     "test": "npx jest",
     "lint": "npx eslint .",
@@ -10,7 +13,11 @@
     "doc": "npx typedoc ."
   },
   "keywords": [
-    "router"
+    "router",
+    "framework-agnostic",
+    "typescript",
+    "browser",
+    "routing"
   ],
   "author": "Clarence Delmacio Manuel",
   "license": "ISC",

@@ -1,4 +1,4 @@
-import { State, naviPrivateStateKey } from "./state";
+import { State, routerPrivateStateKey } from "./state";
 
 describe("isValidNaviState", () => {
   test("will return false for null", () => {
@@ -9,39 +9,37 @@ describe("isValidNaviState", () => {
     expect(State.isValid({})).toBeFalsy();
   });
 
-  test(`will return false for objects with falsy ${naviPrivateStateKey}
+  test(`will return false for objects with falsy ${routerPrivateStateKey}
   property`, () => {
-    expect(State.isValid({ [naviPrivateStateKey]: undefined })).toBeFalsy();
+    expect(State.isValid({ [routerPrivateStateKey]: undefined })).toBeFalsy();
   });
 
-  test(`will return false for objects with a ${naviPrivateStateKey}
+  test(`will return false for objects with a ${routerPrivateStateKey}
   property but no path property`, () => {
-    expect(State.isValid({ [naviPrivateStateKey]: {} })).toBeFalsy();
+    expect(State.isValid({ [routerPrivateStateKey]: {} })).toBeFalsy();
   });
 
-  test(`will return true for objects with a ${naviPrivateStateKey}
+  test(`will return true for objects with a ${routerPrivateStateKey}
   property with path property but not a string type`, () => {
-    expect(
-      State.isValid({ [naviPrivateStateKey]: { path: 1 } }),
-    ).toBeFalsy();
+    expect(State.isValid({ [routerPrivateStateKey]: { path: 1 } })).toBeFalsy();
   });
 
   test(`will return true for valid object`, () => {
     expect(
-      State.isValid({ [naviPrivateStateKey]: { path: "/path" } }),
+      State.isValid({ [routerPrivateStateKey]: { path: "/path" } }),
     ).toBeTruthy();
   });
 });
 
-describe("State", ()=>{
-  test("will throw if not initialized with a valid state", ()=>{
-    expect(()=>{
+describe("State", () => {
+  test("will throw if not initialized with a valid state", () => {
+    expect(() => {
       new State({});
     }).toThrow();
   });
 
-  test("will return the path", ()=>{
-    const state = new State({ [naviPrivateStateKey]: { path: "/path" } });
-    expect(state[naviPrivateStateKey].path).toBe("/path");
+  test("will return the path", () => {
+    const state = new State({ [routerPrivateStateKey]: { path: "/path" } });
+    expect(state[routerPrivateStateKey].path).toBe("/path");
   });
-})
+});

@@ -1,13 +1,14 @@
 import { StringMap } from "./string-map";
 import type { State } from "./state";
-import { naviPrivateStateKey } from "./state";
+import { routerPrivateStateKey } from "./state";
 
 export interface IStateSaverCallback {
   (state: State, title: string, url: string): unknown;
 }
 
 /**
- * Exposes properties and methods of the current route
+ * Exposes properties and methods for retrieving
+ * and modifying the current route context.
  */
 export class RouteContext {
   /**
@@ -100,7 +101,7 @@ export class RouteContext {
    */
   constructor(state: State, saveStateFn: IStateSaverCallback) {
     const base = window?.location?.href ?? "https://example.com";
-    const url = new URL(state[naviPrivateStateKey].path, base);
+    const url = new URL(state[routerPrivateStateKey].path, base);
 
     this.#stateSaverCb = saveStateFn;
     this.param = new StringMap();

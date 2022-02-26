@@ -1,4 +1,4 @@
-import { NaviError } from "./navi-error";
+import { RouterError } from "./router-error";
 
 interface StringRecord {
   [key: string]: string | string[];
@@ -36,7 +36,7 @@ export class StringMap {
    *
    * @return {void} void
    *
-   * @throws {NaviError} if the value isn't a string
+   * @throws {RouterError} if the value isn't a string
    */
   public addStringToKey(key: string, value: string) {
     const currentValue = this.#internalMap[key];
@@ -56,7 +56,7 @@ export class StringMap {
       return;
     }
 
-    throw new NaviError("StringMap.addValueToKey only accepts a string");
+    throw new RouterError("StringMap.addValueToKey only accepts a string");
   }
 
   /**
@@ -80,7 +80,7 @@ export class StringMap {
    *
    * @return {void} void
    *
-   * @throws {NaviError} if the value isn't an array of string
+   * @throws {RouterError} if the value isn't an array of string
    */
   public addArrayToKey(key: string, array: string[]) {
     const currentValue = this.#internalMap[key];
@@ -100,7 +100,9 @@ export class StringMap {
       return;
     }
 
-    throw new NaviError("StringMap.addArrayToKey only accepts an array of string");
+    throw new RouterError(
+      "StringMap.addArrayToKey only accepts an array of string",
+    );
   }
 
   /**

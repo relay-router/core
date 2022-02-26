@@ -1,7 +1,7 @@
 import { Route } from "./route";
 import { RouteContext } from "./route-context";
 import type { IRouteCallback, IRouteMiddleware } from "./router";
-import { naviPrivateStateKey, State } from "./state";
+import { routerPrivateStateKey, State } from "./state";
 
 describe("Route", () => {
   const dummyPathWithQueryAndHash =
@@ -10,7 +10,7 @@ describe("Route", () => {
 
   function createStateFromPath(path: string): State {
     return {
-      [naviPrivateStateKey]: {
+      [routerPrivateStateKey]: {
         path,
       },
     };

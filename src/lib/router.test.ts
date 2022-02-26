@@ -1,5 +1,5 @@
 import { Router } from "./router";
-import { naviPrivateStateKey, State } from "./state";
+import { routerPrivateStateKey, State } from "./state";
 import { RouteContext } from "./route-context";
 
 describe("Router", () => {
@@ -46,7 +46,7 @@ describe("Router", () => {
 
       expect(history.pushState).toHaveBeenCalledWith(
         {
-          [naviPrivateStateKey]: { path: "/path" },
+          [routerPrivateStateKey]: { path: "/path" },
           publicState: undefined,
         },
         expect.any(String),
@@ -93,7 +93,6 @@ describe("Router", () => {
 
     router.route("/path", mockedHandler);
 
-
     router.navigateWithContext(context);
 
     expect(mockedHandler).toHaveBeenCalled();
@@ -107,7 +106,6 @@ describe("Router", () => {
     );
 
     router.route("/path", jest.fn());
-
 
     router.navigateWithContext(context);
 
@@ -136,7 +134,7 @@ describe("Router", () => {
     router.navigateTo("/other");
 
     expect(mockedHandler).toHaveBeenCalledTimes(4);
-  })
+  });
 
   test("a router will delegate to a nested router", () => {
     const router = new Router({ nested: false, history });
@@ -149,7 +147,7 @@ describe("Router", () => {
     router.navigateTo("/child");
 
     expect(mockedHandler).toHaveBeenCalled();
-  })
+  });
 
   test("a nested router will delegate to another nested router", () => {
     const router = new Router({ nested: false, history });
@@ -164,5 +162,5 @@ describe("Router", () => {
     router.navigateTo("/parent/child/anotherChild");
 
     expect(mockedHandler).toHaveBeenCalled();
-  })
+  });
 });
