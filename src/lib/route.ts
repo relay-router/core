@@ -48,7 +48,7 @@ export class Route {
    * @param path The path to match against.
    * @param context The context to use for the matching.
    */
-  private parseParamsAndStoreToContext(
+  #parseParamsAndStoreToContext(
     path: string,
     context: RouteContext,
   ): void {
@@ -91,7 +91,7 @@ export class Route {
 
     if (!this.#regex.test(pathToHandle)) return false;
 
-    this.parseParamsAndStoreToContext(pathToHandle, context);
+    this.#parseParamsAndStoreToContext(pathToHandle, context);
 
     let callNextHandler = false;
 

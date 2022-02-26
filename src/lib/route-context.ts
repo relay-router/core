@@ -3,7 +3,7 @@ import type { State } from "./state";
 import { naviPrivateStateKey } from "./state";
 
 export interface IStateSaverCallback {
-  (state: unknown, title: string, url: string): unknown;
+  (state: State, title: string, url: string): unknown;
 }
 
 /**

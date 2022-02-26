@@ -1,4 +1,4 @@
-import { RouteContext } from "./route-context";
+import { type IStateSaverCallback, RouteContext } from "./route-context";
 import { Route } from "./route";
 import type {
   ParseOptions,
@@ -60,7 +60,6 @@ type RouterParams =
 
 interface INestedRouterMiddleware extends IRouteMiddleware {
   route: Router["route"];
-  routeExit: Router["routeExit"];
 }
 
 /**
@@ -109,13 +108,7 @@ export class Router {
    * The routes to called when entering a path.
    * @private
    */
-  readonly #enterRoutes: Route[];
-
-  /**
-   * The routes to called when exiting a path.
-   * @private
-   */
-  readonly #exitRoutes: Route[];
+  readonly #routes: Route[];
 
   /**
    * The current context that is created by the router
@@ -154,8 +147,7 @@ export class Router {
       this.#history = history;
     }
 
-    this.#enterRoutes = [];
-    this.#exitRoutes = [];
+    this.#routes = [];
   }
 
   /**
@@ -210,19 +202,24 @@ export class Router {
    * @returns {this} The router, to allow chaining method calls.
    */
   public route(pattern: string, ...handlers: IRouteHandlerCollection) {
-    this.#enterRoutes.push(
-      new Route(pattern, handlers, Router.#routeMatchingOptions),
+    this.#routes.push(
+      new Route(
+        Router.#transformPathPattern(pattern),
+        handlers,
+        Router.#routeMatchingOptions,
+      ),
     );
 
     return this;
   }
 
-  public routeExit(pattern: string, ...handlers: IRouteHandlerCollection) {
-    this.#exitRoutes.push(
-      new Route(pattern, handlers, Router.#routeMatchingOptions),
-    );
+  /**
+   * Converts special paths to path-to-regexp compatible patterns.
+   */
+  static #transformPathPattern(pattern: string) {
+    if (pattern === "*") return "";
 
-    return this;
+    return pattern;
   }
 
   /**
@@ -236,11 +233,14 @@ export class Router {
    * @throws {NaviError} If called on a nested router.
    */
   public navigateTo(absolutePath: string) {
-    if (this.#nested || !this.#history)
+    if (this.#nested)
       throw new NaviError(
         "Navigation using absolute paths is not supported on nested routers. " +
           "Use the parent router to navigate with absolute paths.",
       );
+
+    if (!this.#history)
+      throw new NaviError("No history object was provided to the router");
 
     const state = State.fromPrivateState({ path: absolutePath });
     this.#history.pushState(state, "", absolutePath);
@@ -289,7 +289,7 @@ export class Router {
    * after calling all the handlers.
    */
   public navigateWithContext(context: RouteContext) {
-    for (const route of this.#enterRoutes) {
+    for (const route of this.#routes) {
       if (route.handle(context)) return;
     }
 
@@ -309,7 +309,11 @@ export class Router {
    * @param title
    * @param url
    */
-  readonly #saveState = (state: unknown, title: string, url: string) => {
+  readonly #saveState: IStateSaverCallback = (
+    state: State,
+    title: string,
+    url: string,
+  ) => {
     if (!this.#history)
       throw new NaviError(
         "Saved a state to the history, but the router has no history object.",
@@ -318,6 +322,9 @@ export class Router {
     this.#history?.replaceState(state, title, url);
   };
 
+  /**
+   * Create a middleware with a router instance to be used as a nested router.
+   */
   public static createRouterMiddleware(): INestedRouterMiddleware {
     const router = new Router({ nested: true });
 
@@ -327,7 +334,6 @@ export class Router {
     };
 
     middleware.route = router.route.bind(router);
-    middleware.routeExit = router.routeExit.bind(router);
 
     return middleware;
   }

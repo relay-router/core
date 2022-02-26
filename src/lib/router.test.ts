@@ -124,15 +124,44 @@ describe("Router", () => {
     expect(() => router.navigateWithContext(context)).toThrowError();
   });
 
-  test("nested router middleware", () => {
+  test("wildcard paths will match everything", () => {
+    const router = new Router({ nested: false, history });
+    const mockedHandler = jest.fn();
+
+    router.route("*", mockedHandler);
+
+    router.navigateTo("/parent/child");
+    router.navigateTo("");
+    router.navigateTo("/");
+    router.navigateTo("/other");
+
+    expect(mockedHandler).toHaveBeenCalledTimes(4);
+  })
+
+  test("a router will delegate to a nested router", () => {
     const router = new Router({ nested: false, history });
     const nestedRouter = Router.createRouterMiddleware();
     const mockedHandler = jest.fn();
 
-    router.route("/parent", nestedRouter);
     nestedRouter.route("/child", mockedHandler);
+    router.route("*", nestedRouter);
 
-    router.navigateTo("/parent/child");
+    router.navigateTo("/child");
+
+    expect(mockedHandler).toHaveBeenCalled();
+  })
+
+  test("a nested router will delegate to another nested router", () => {
+    const router = new Router({ nested: false, history });
+    const nestedRouter = Router.createRouterMiddleware();
+    const nestedRouter2 = Router.createRouterMiddleware();
+    const mockedHandler = jest.fn();
+
+    router.route("/parent", nestedRouter);
+    nestedRouter.route("/child", nestedRouter2);
+    nestedRouter2.route("/anotherChild", mockedHandler);
+
+    router.navigateTo("/parent/child/anotherChild");
 
     expect(mockedHandler).toHaveBeenCalled();
   })

@@ -1,11 +1,11 @@
+import { NaviError } from "./navi-error";
+
 /**
  * Key string for accessing Navi's private state stored in history.state.
- * @example ```
+ * @example```typescript
  * const naviState = history.state[naviPrivateStateKey];
  * ```
  */
-import { NaviError } from "./navi-error";
-
 export const naviPrivateStateKey = "__NaviPrivateStateKey_DO_NOT_TAMPER__";
 
 /**
@@ -28,7 +28,15 @@ export interface INaviPrivateState {
  * This goes without saying, the private state is not meant to be tampered with.
  */
 export class State {
+  /**
+   * The private state to be used internally by Navi.
+   */
   public [naviPrivateStateKey]: INaviPrivateState;
+
+  /**
+   * The public state for clients to access.
+   */
+  public publicState?: unknown;
 
   /**
    * @param {any} unknownState the object to create the state from.
@@ -55,17 +63,12 @@ export class State {
     });
   }
 
-  public publicState?: unknown;
-
   /**
    * Returns true if the given object is a valid state object.
    *
    * @param {any} unknownState the object to validate
    */
   public static isValid(unknownState: any): unknownState is State {
-    return (
-      unknownState?.[naviPrivateStateKey]?.path &&
-      typeof unknownState?.[naviPrivateStateKey]?.path === "string"
-    );
+    return typeof unknownState?.[naviPrivateStateKey]?.path === "string";
   }
 }
