@@ -8,7 +8,7 @@ import {
 } from "./lib/utils";
 import { State } from "./lib/state";
 
-type NaviOptions = {
+type RutaOptions = {
   /**
    * Flag to signal the router to bind a handler
    * ({@link popStateHandler}) to the popstate event.
@@ -40,7 +40,7 @@ type NaviOptions = {
   initialDispatch?: boolean;
 };
 
-const defaultOptions: NaviOptions = {
+const defaultOptions: RutaOptions = {
   bindPopState: true,
   bindClick: true,
   initialDispatch: true,
@@ -50,20 +50,20 @@ let globalRouter: Router | undefined;
 let started = false;
 
 /**
- * Start navi with the given options.
+ * Start Navi with the given options.
  *
- * @param {NaviOptions} options The options to start navi with.
+ * @param {RutaOptions} options The options to start Navi with.
  *
  * @return {Router} The router instance.
  *
- * @throws {Error} If navi is already started or if environment is not supported
+ * @throws {Error} If Navi is already started or if environment is not supported
  * (e.g. no history API).
  */
-function start(options?: NaviOptions) {
+function start(options?: RutaOptions) {
   const combinedOptions = { ...defaultOptions, ...options };
 
   if (started) {
-    throw new Error("Navi is already started");
+    throw new Error("Ruta is already started");
   }
 
   if (!hasWindow) {
@@ -102,13 +102,13 @@ function start(options?: NaviOptions) {
  * as the path to navigate to.
  *
  * Using the {@link HTMLAnchorElement.href} property ensures that the
- * path is resolved to an absolute path because Navi doesn't support
+ * path is resolved to an absolute path because Ruta doesn't support
  * relative paths out of the box.
  *
  * @param {MouseEvent} event
  */
 function clickHandler(event: MouseEvent) {
-  if (!started || !globalRouter) throw new Error("Navi has not started");
+  if (!started || !globalRouter) throw new Error("Ruta has not started");
 
   if (event.target instanceof HTMLAnchorElement) {
     const href = event.target.href;
@@ -125,7 +125,7 @@ function clickHandler(event: MouseEvent) {
 function popStateHandler(event: PopStateEvent) {
   const state = event.state;
 
-  if (!started || !globalRouter) throw new Error("Navi has not started");
+  if (!started || !globalRouter) throw new Error("Ruta has not started");
 
   if (!State.isValid(state)) throw new Error("Invalid state object");
 
@@ -133,17 +133,17 @@ function popStateHandler(event: PopStateEvent) {
 }
 
 /**
- * Navigate to the given path. It can only handle absolute paths.
+ * Rutagate to the given path. It can only handle absolute paths.
  * If the path is relative, it will be resolved to an absolute path.
  *
  * @param {string} absolutePath The path to navigate to.
  *
- * @throws {Error} If Navi has not started.
+ * @throws {Error} If Ruta has not started.
  */
 function navigateTo(absolutePath: string) {
-  if (!started || !globalRouter) throw new Error("Navi has not started");
+  if (!started || !globalRouter) throw new Error("Ruta has not started");
 
   globalRouter.navigateTo(absolutePath);
 }
 
-export { type NaviOptions, start, clickHandler, popStateHandler, navigateTo };
+export { type RutaOptions, start, clickHandler, popStateHandler, navigateTo };

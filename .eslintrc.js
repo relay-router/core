@@ -16,7 +16,6 @@ module.exports = {
     "sourceType": "module",
   },
   plugins: [ "@typescript-eslint" ],
-  "ignorePatterns": [ "*.config.*", ".*rc.js" ],
   "rules": {
     "@typescript-eslint/no-empty-function": "warn",
     "@typescript-eslint/no-inferrable-types": "warn",

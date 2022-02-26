@@ -3,12 +3,12 @@ import type { RouteContext } from "./route-context";
 /**
  * Errors thrown by Navi library.
  */
-export class NaviError extends Error {
+export class RutaError extends Error {
   public readonly context?: RouteContext;
 
   constructor(message: string, context?: RouteContext) {
     super(message);
-    this.name = "NaviError";
+    this.name = "RutaError";
     this.context = context;
   }
 }
