@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "description": "A Simple Framework-Agnostic Routing Library",
   "main": "./dist/index.js",
-  "types": "commonjs",
+  "types": "./dist/index.d.ts",
   "type": "commonjs",
   "scripts": {
     "test": "npx jest",
