@@ -1,3 +1,5 @@
+/** @format */
+
 import type { RouteContext } from "./route-context";
 
 /**

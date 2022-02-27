@@ -1,6 +1,7 @@
+/** @format */
+
 import { Route } from "./route";
 import { RouteContext } from "./route-context";
-import type { IRouteCallback, IRouteMiddleware } from "./router";
 import { routerPrivateStateKey, State } from "./state";
 
 describe("Route", () => {
@@ -21,9 +22,7 @@ describe("Route", () => {
       createStateFromPath(dummyPathWithQueryAndHash),
       jest.fn(),
     );
-    const route = new Route("/path",
-                            [ jest.fn() ],
-                            naviMatchingOptionsDefaults);
+    const route = new Route("/path", [jest.fn()], naviMatchingOptionsDefaults);
 
     const handled = route.handle(context);
 
@@ -32,15 +31,18 @@ describe("Route", () => {
 
   test(
     "if the last handler called by handle function calls next, " +
-    "it means the context isn't handled",
+      "it means the context isn't handled",
     () => {
       const context = new RouteContext(
         createStateFromPath(dummyPathWithQueryAndHash),
         jest.fn(),
       );
+      const mockedHandler = jest.fn();
+      mockedHandler.mockImplementation((_context, next) => next());
+
       const route = new Route(
         "/path",
-        [ jest.fn((context, next) => next()) as IRouteMiddleware ],
+        [mockedHandler],
         naviMatchingOptionsDefaults,
       );
 
@@ -50,39 +52,41 @@ describe("Route", () => {
     },
   );
 
-  test(
-    "if the previous handler didn't call next, the next handler should not be called",
-    () => {
-      const context = new RouteContext(
-        createStateFromPath(dummyPathWithQueryAndHash),
-        jest.fn(),
-      );
+  test("if the previous handler didn't call next, the next handler should not be called", () => {
+    const context = new RouteContext(
+      createStateFromPath(dummyPathWithQueryAndHash),
+      jest.fn(),
+    );
 
-      const firstHandler = jest.fn();
-      const secondHandler = jest.fn();
+    const firstHandler = jest.fn();
+    const secondHandler = jest.fn();
 
-      const route = new Route(
-        "/path",
-        [ firstHandler, secondHandler ],
-        naviMatchingOptionsDefaults,
-      );
+    const route = new Route(
+      "/path",
+      [firstHandler, secondHandler],
+      naviMatchingOptionsDefaults,
+    );
 
-      route.handle(context);
+    route.handle(context);
 
-      expect(secondHandler).not.toHaveBeenCalled();
-    });
+    expect(secondHandler).not.toHaveBeenCalled();
+  });
 
   test(
     "if the last handler doesn't call next, " +
-    "it means the context is handled",
+      "it means the context is handled",
     () => {
       const context = new RouteContext(
         createStateFromPath(dummyPathWithQueryAndHash),
         jest.fn(),
       );
+      const mockedMiddleware = jest.fn();
+
+      mockedMiddleware.mockImplementation((_ctx, next) => next());
+
       const route = new Route(
         "/path",
-        [ jest.fn((ctx, next) => next()) as IRouteMiddleware, jest.fn() ],
+        [mockedMiddleware, jest.fn()],
         naviMatchingOptionsDefaults,
       );
 
@@ -99,7 +103,7 @@ describe("Route", () => {
     );
     const route = new Route(
       "/otherPathThatWouldNotMatch",
-      [ jest.fn() ],
+      [jest.fn()],
       naviMatchingOptionsDefaults,
     );
 
@@ -115,7 +119,7 @@ describe("Route", () => {
     );
     const route = new Route(
       "/path/:id",
-      [ jest.fn() ],
+      [jest.fn()],
       naviMatchingOptionsDefaults,
     );
 
@@ -131,7 +135,7 @@ describe("Route", () => {
     );
     const route = new Route(
       "/path/:id/:id2",
-      [ jest.fn() ],
+      [jest.fn()],
       naviMatchingOptionsDefaults,
     );
 
@@ -150,7 +154,7 @@ describe("Route", () => {
       );
       const route = new Route(
         "/path/:id/1/:lastParam",
-        [ jest.fn() ],
+        [jest.fn()],
         naviMatchingOptionsDefaults,
       );
 
@@ -170,7 +174,7 @@ describe("Route", () => {
       );
       const route = new Route(
         "/path/:id/1/:lastParam",
-        [ jest.fn() ],
+        [jest.fn()],
         naviMatchingOptionsDefaults,
       );
 
@@ -182,7 +186,7 @@ describe("Route", () => {
 
   test(
     "handle should put the portion it matched with " +
-    "in the context even if it has query and hash",
+      "in the context even if it has query and hash",
     () => {
       const context = new RouteContext(
         createStateFromPath(dummyPathWithQueryAndHash),
@@ -190,7 +194,7 @@ describe("Route", () => {
       );
       const route = new Route(
         "/path/:id/1/:lastParam",
-        [ jest.fn() ],
+        [jest.fn()],
         naviMatchingOptionsDefaults,
       );
 
@@ -202,33 +206,36 @@ describe("Route", () => {
 
   test(
     "Route should be able to handle context that are partially handled" +
-    " by other routes if it can match the remainder of the unmatched path",
+      " by other routes if it can match the remainder of the unmatched path",
     () => {
       const context = new RouteContext(
         createStateFromPath(dummyPathWithQueryAndHash),
         jest.fn(),
       );
+      const mockedMiddleware = jest.fn();
+      mockedMiddleware.mockImplementation((_context, next) => next());
+
       const route1 = new Route(
         "/path",
-        [ jest.fn((context, next) => next()) as IRouteMiddleware ],
+        [mockedMiddleware],
         naviMatchingOptionsDefaults,
       );
 
       const route2 = new Route(
         "/:id",
-        [ jest.fn((context, next) => next()) as IRouteMiddleware ],
+        [mockedMiddleware],
         naviMatchingOptionsDefaults,
       );
 
       const route3 = new Route(
         "/:number",
-        [ jest.fn((context, next) => next()) as IRouteMiddleware ],
+        [mockedMiddleware],
         naviMatchingOptionsDefaults,
       );
 
       const route4 = new Route(
         "/:lastKey",
-        [ jest.fn() ],
+        [jest.fn()],
         naviMatchingOptionsDefaults,
       );
 
@@ -247,16 +254,22 @@ describe("Route", () => {
 
   test(
     "in a long chain of callbacks, if the last route handler didn't call next, " +
-    "it means the the context has been handled",
+      "it means the the context has been handled",
     () => {
-      const mockMiddleware1 = jest.fn((context, next) => next());
-      const mockMiddleware2 = jest.fn((context, next) => next());
-      const mockMiddleware3 = jest.fn((context, next) => next());
+      const mockMiddleware1 = jest.fn();
+      mockMiddleware1.mockImplementation((_context, next) => next());
+
+      const mockMiddleware2 = jest.fn();
+      mockMiddleware2.mockImplementation((_context, next) => next());
+
+      const mockMiddleware3 = jest.fn();
+      mockMiddleware3.mockImplementation((_context, next) => next());
+
       const mockHandler = jest.fn();
 
       const route = new Route(
         "/path",
-        [ mockMiddleware1, mockMiddleware2, mockMiddleware3, mockHandler ],
+        [mockMiddleware1, mockMiddleware2, mockMiddleware3, mockHandler],
         naviMatchingOptionsDefaults,
       );
 
@@ -273,11 +286,12 @@ describe("Route", () => {
       expect(mockHandler).toHaveBeenCalled();
 
       expect(context.handled).toBeTruthy();
-    });
+    },
+  );
 
   test(
     "a route handler should not be called if the preceding " +
-    "handler didn't call next",
+      "handler didn't call next",
     () => {
       const context = new RouteContext(
         createStateFromPath(dummyPathWithQueryAndHash),
@@ -290,7 +304,7 @@ describe("Route", () => {
 
       const route1 = new Route(
         "/path",
-        [ handler1, handler2 ],
+        [handler1, handler2],
         naviMatchingOptionsDefaults,
       );
 
@@ -302,22 +316,22 @@ describe("Route", () => {
 
   test(
     "a route handler should be called " +
-    "if the preceding handler called next",
+      "if the preceding handler called next",
     () => {
       const context = new RouteContext(
         createStateFromPath(dummyPathWithQueryAndHash),
         jest.fn(),
       );
 
-      const handler1 = jest.fn((context, next) => {
+      const handler1 = jest.fn((_context, next) => {
         next();
-      }) as IRouteMiddleware;
+      });
 
-      const handler2 = jest.fn() as IRouteCallback;
+      const handler2 = jest.fn();
 
       const route1 = new Route(
         "/path",
-        [ handler1, handler2 ],
+        [handler1, handler2],
         naviMatchingOptionsDefaults,
       );
 
@@ -332,13 +346,10 @@ describe("Route", () => {
       createStateFromPath(dummyPathWithQueryAndHash),
       jest.fn(),
     );
-    const route = new Route("/path",
-                            [ jest.fn() ],
-                            naviMatchingOptionsDefaults);
+    const route = new Route("/path", [jest.fn()], naviMatchingOptionsDefaults);
 
     route.handle(context);
 
     expect(() => route.handle(context)).toThrowError();
   });
-})
-;
+});

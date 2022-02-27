@@ -1,3 +1,5 @@
+/** @format */
+
 import { RouterError } from "./router-error";
 
 /**
@@ -12,7 +14,7 @@ export const routerPrivateStateKey = "__RouterPrivateStateKey_DO_NOT_TAMPER__";
  * The structure of the Router's private state
  * stored in `history.state[rutaPrivateStateKey]`.
  */
-export interface IRouterPrivateState {
+export interface RouterPrivateState {
   /**
    * The path during which the state was created.
    */
@@ -31,7 +33,7 @@ export class State {
   /**
    * The private state to be used internally by Router.
    */
-  public [routerPrivateStateKey]: IRouterPrivateState;
+  public [routerPrivateStateKey]: RouterPrivateState;
 
   /**
    * The public state for clients to access.
@@ -57,7 +59,7 @@ export class State {
    *
    * @param privateState
    */
-  public static fromPrivateState(privateState: IRouterPrivateState): State {
+  public static fromPrivateState(privateState: RouterPrivateState): State {
     return new State({
       [routerPrivateStateKey]: privateState,
     });

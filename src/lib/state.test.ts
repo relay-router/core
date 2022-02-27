@@ -1,3 +1,5 @@
+/** @format */
+
 import { State, routerPrivateStateKey } from "./state";
 
 describe("isValidNaviState", () => {

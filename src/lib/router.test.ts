@@ -1,3 +1,5 @@
+/** @format */
+
 import { Router } from "./router";
 import { routerPrivateStateKey, State } from "./state";
 import { RouteContext } from "./route-context";
@@ -14,32 +16,29 @@ describe("Router", () => {
     jest.clearAllMocks();
   });
 
-  test("navigateTo will cause the router to call the matching route handler",
-       () => {
-         const router = new Router({ nested: false, history });
-         const mockedHandler = jest.fn();
-         router.route("/path", mockedHandler);
+  test("navigateTo will cause the router to call the matching route handler", () => {
+    const router = new Router({ nested: false, history });
+    const mockedHandler = jest.fn();
+    router.route("/path", mockedHandler);
 
-         router.navigateTo(dummyPathWithQueryAndHash);
+    router.navigateTo(dummyPathWithQueryAndHash);
 
-         expect(mockedHandler).toHaveBeenCalled();
-       });
+    expect(mockedHandler).toHaveBeenCalled();
+  });
 
-  test(
-    "navigateTo will cause the router to call pushState  on the history object",
-    () => {
-      const router = new Router({ nested: false, history });
+  test("navigateTo will cause the router to call pushState  on the history object", () => {
+    const router = new Router({ nested: false, history });
 
-      router.route("/path", jest.fn());
+    router.route("/path", jest.fn());
 
-      router.navigateTo(dummyPathWithQueryAndHash);
+    router.navigateTo(dummyPathWithQueryAndHash);
 
-      expect(history.pushState).toHaveBeenCalledTimes(1);
-    });
+    expect(history.pushState).toHaveBeenCalledTimes(1);
+  });
 
   test(
     "navigateTo will cause the router to call pushState " +
-    "on the history object with the correct path",
+      "on the history object with the correct path",
     () => {
       const router = new Router({ nested: false, history });
 
@@ -76,16 +75,15 @@ describe("Router", () => {
     expect(mockedHandler).toHaveBeenCalled();
   });
 
-  test("navigateWithState will not call pushState on the history object",
-       () => {
-         const router = new Router({ nested: false, history });
+  test("navigateWithState will not call pushState on the history object", () => {
+    const router = new Router({ nested: false, history });
 
-         router.route("/path", jest.fn());
+    router.route("/path", jest.fn());
 
-         router.navigateWithState(State.fromPrivateState({ path: "/path" }));
+    router.navigateWithState(State.fromPrivateState({ path: "/path" }));
 
-         expect(history.pushState).not.toHaveBeenCalled();
-       });
+    expect(history.pushState).not.toHaveBeenCalled();
+  });
 
   test("navigateWithContext will cause a handler to be called", () => {
     const router = new Router({ nested: false, history });
@@ -102,20 +100,19 @@ describe("Router", () => {
     expect(mockedHandler).toHaveBeenCalled();
   });
 
-  test("navigateWithContext will not call pushState on the history object",
-       () => {
-         const router = new Router({ nested: false, history });
-         const context = new RouteContext(
-           State.fromPrivateState({ path: "/path" }),
-           jest.fn(),
-         );
+  test("navigateWithContext will not call pushState on the history object", () => {
+    const router = new Router({ nested: false, history });
+    const context = new RouteContext(
+      State.fromPrivateState({ path: "/path" }),
+      jest.fn(),
+    );
 
-         router.route("/path", jest.fn());
+    router.route("/path", jest.fn());
 
-         router.navigateWithContext(context);
+    router.navigateWithContext(context);
 
-         expect(history.pushState).not.toHaveBeenCalled();
-       });
+    expect(history.pushState).not.toHaveBeenCalled();
+  });
 
   test("navigateWithContext will throw when a handler is not found", () => {
     const router = new Router({ nested: false, history });
@@ -129,7 +126,7 @@ describe("Router", () => {
 
   test("calling route should return an object to add more handlers", () => {
     const router = new Router({ nested: false, history });
-    const mockedMiddleware = jest.fn((context, next) => {
+    const mockedMiddleware = jest.fn((_context, next) => {
       next();
     });
     const mockedHandler = jest.fn();
@@ -162,7 +159,7 @@ describe("Router", () => {
 
   test("a router will delegate to a nested router", () => {
     const router = new Router({ nested: false, history });
-    const nestedRouter = Router.createRouterMiddleware();
+    const nestedRouter = Router.createNested();
     const mockedHandler = jest.fn();
 
     nestedRouter.route("/child", mockedHandler);
@@ -175,8 +172,8 @@ describe("Router", () => {
 
   test("a nested router will delegate to another nested router", () => {
     const router = new Router({ nested: false, history });
-    const nestedRouter = Router.createRouterMiddleware();
-    const nestedRouter2 = Router.createRouterMiddleware();
+    const nestedRouter = Router.createNested();
+    const nestedRouter2 = Router.createNested();
     const mockedHandler = jest.fn();
 
     router.route("/parent", nestedRouter);

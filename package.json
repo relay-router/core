@@ -3,12 +3,12 @@
   "version": "0.0.3",
   "description": "A Simple Framework-Agnostic Routing Library",
   "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "type": "commonjs",
+  "typings": "./dist/types/index.d.ts",
   "scripts": {
     "test": "npx jest",
     "lint": "npx eslint .",
-    "format": "npx prettier .",
+    "check": "npx tsc --noEmit && npm run lint",
+    "format": "npx prettier . --write",
     "build": "npm run test && npm run format && npm run lint && npx tsc -p ./tsconfig.build.json",
     "doc": "npx typedoc ."
   },
@@ -35,6 +35,7 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
-    "path-to-regexp": "^6.2.0"
+    "path-to-regexp": "^6.2.0",
+    "tslib": "^2.3.1"
   }
 }

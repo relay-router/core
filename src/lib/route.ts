@@ -1,10 +1,8 @@
+/** @format */
+
 import { type Key, pathToRegexp } from "path-to-regexp";
 import type { RouteContext } from "./route-context";
-import type {
-  IRouteMatchingOptions,
-  IRouteHandlerCollection,
-  IRouteMiddleware, IRouteCallback,
-} from "./router";
+import type { RouteMatchingOptions, RouteHandler } from "./router";
 import { RouterError } from "./router-error";
 
 /**
@@ -21,7 +19,7 @@ export class Route {
    * The handlers to call when the route matches.
    * @private
    */
-  readonly #handlers: (IRouteMiddleware | IRouteCallback)[];
+  readonly #handlers: RouteHandler[];
 
   /**
    * The pattern to match against.
@@ -37,8 +35,8 @@ export class Route {
 
   constructor(
     pattern: string,
-    handlers: IRouteHandlerCollection,
-    matchingOptions?: IRouteMatchingOptions,
+    handlers: RouteHandler[],
+    matchingOptions?: RouteMatchingOptions,
   ) {
     this.#keys = [];
     this.#regex = pathToRegexp(pattern, this.#keys, matchingOptions);
@@ -61,7 +59,7 @@ export class Route {
       for (let i = 1; i < matches.length; i++) {
         const key = this.#keys[i - 1];
         const value = matches[i];
-        if (key) {
+        if (key !== undefined && value !== undefined) {
           context.param.addStringToKey(key.name.toString(), value);
         }
       }
@@ -73,7 +71,7 @@ export class Route {
    *
    * @param handlers
    */
-  public addHandler(...handlers: IRouteHandlerCollection): void {
+  public addHandler(...handlers: RouteHandler[]): void {
     this.#handlers.push(...handlers);
   }
 
@@ -114,7 +112,7 @@ export class Route {
       handler(context, next);
 
       if (!callNextHandler) {
-        return context.handled = true;
+        return (context.handled = true);
       }
     }
 

@@ -1,0 +1,64 @@
+{
+  "compilerOptions": {
+    /* Visit https://aka.ms/tsconfig.json to read more about this file */
+
+    /* Projects */
+    "incremental": true,
+    "composite": true,
+    "disableReferencedProjectLoad": true,
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
+    /* Projects */
+
+    /* Language and Environment */
+    "target": "es6",
+    // "lib": [],
+    "useDefineForClassFields": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    /* Language and Environment */
+
+    /* Modules */
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "rootDir": "./src", // Normally inferred by TypeScript but set it explicitly here
+    "paths": {},
+    "resolveJsonModule": true,
+    /* Modules */
+
+    /* JavaScript Support */
+    "allowJs": true,
+    "checkJs": true,
+    /* JavaScript Support */
+
+    /* Emit */
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "declarationDir": "./dist/types",
+    "outDir": "./dist",
+    "importHelpers": true,
+    "importsNotUsedAsValues": "error",
+    "newLine": "lf",
+    "stripInternal": true,
+    /* Emit */
+
+    /* Interop Constraints */
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    /* Interop Constraints */
+
+    /* Type Checking */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    /* Type Checking */
+
+    /* Completeness */
+    "skipLibCheck": true
+    /* Completeness */
+  }
+}

@@ -1,3 +1,5 @@
+/** @format */
+
 import { type IStateSaverCallback, RouteContext } from "./route-context";
 import { Route } from "./route";
 import type {
@@ -8,57 +10,75 @@ import type {
 import { State } from "./state";
 import { RouterError } from "./router-error";
 
-/**
- * The final handler for a route.
- *
- * @param {RouteContext} context The route context.
- */
-export interface IRouteCallback {
-  (context: RouteContext): void;
-}
+export type RouterOptions = {
+  /**
+   * Flag to signal the router to bind a handler
+   * ({@link popStateHandler}) to the popstate event.
+   * This will allow the router to react when the user clicks the back button.
+   *
+   * @type {boolean}
+   *
+   * @default true
+   */
+  bindPopState?: boolean;
+
+  /**
+   * Flag to signal the router to bind a handler
+   * ({@link clickHandler}) to the click events on the `window` object.
+   * This will allow the router to react when the user clicks
+   * an anchor (`<a></a>`) element.
+   *
+   * @type {boolean}
+   * @default true
+   */
+  bindClick?: boolean;
+
+  /**
+   * Flag to signal the router to handle the initial navigation when the page loads.
+   *
+   * @type {boolean}
+   * @default true
+   */
+  initialDispatch?: boolean;
+
+  /**
+   * Flag to signal the router to handle the initial navigation when the page loads.
+   *
+   * @type {boolean}
+   * @default false
+   */
+  useHash?: boolean;
+};
+
+const defaultOptions: RouterOptions = {
+  bindPopState: true,
+  bindClick: true,
+  initialDispatch: true,
+  useHash: false,
+};
 
 /**
  * A helper type for configuring path-to-regexp options.
  */
-export type IRouteMatchingOptions = ParseOptions &
+export type RouteMatchingOptions = ParseOptions &
   TokensToRegexpOptions &
   RegexpToFunctionOptions;
 
-/**
- * A convenient data structure containing flags for configuring the router.
- * It is pre-configured with reasonable defaults out of the box.
- */
-
-/**
- * The handlers called before the final handler of a route.
- * Useful for creating plugin-type handlers.
- *
- * @param {RouteContext} context The route context.
- * @param {() => void} next The next handler in the chain.
- */
-export interface IRouteMiddleware {
+export interface RouteHandler {
   (context: RouteContext, next: () => void): void;
 }
 
-/**
- * The container for storing the chain of handlers for a route.
- */
-export type IRouteHandlerCollection =
-  | [ IRouteCallback ]
-  | IRouteMiddleware[]
-  | [ ...IRouteMiddleware[], IRouteCallback ];
-
 type RouterParams =
   | {
-  nested: true;
-  history?: History;
-}
+      nested: true;
+      history?: History;
+    }
   | {
-  nested: false;
-  history: History;
-};
+      nested: false;
+      history: History;
+    };
 
-interface INestedRouterMiddleware extends IRouteMiddleware {
+interface INestedRouterMiddleware extends RouteHandler {
   route: Router["route"];
 }
 
@@ -68,7 +88,7 @@ interface IRouteHandlerAdder {
    *
    * @param handlers
    */
-  add(...handlers: IRouteHandlerCollection): IRouteHandlerAdder;
+  add(...handlers: RouteHandler[]): IRouteHandlerAdder;
 }
 
 /**
@@ -87,10 +107,12 @@ interface IRouteHandlerAdder {
  *    its handler with the context instance.
  */
 export class Router {
+  static #globalRouter: Router | undefined;
+  static #started = false;
   /**
    * Path-to-regexp configurations that are required for Router to work properly.
    */
-  static #requiredOptions: IRouteMatchingOptions = {
+  static #requiredOptions: RouteMatchingOptions = {
     end: false,
   };
 
@@ -98,7 +120,7 @@ export class Router {
    * The options that are passed to {@link Route} objects
    * that in turn pass it to path-to-regexp.
    */
-  static #routeMatchingOptions: IRouteMatchingOptions = this.#requiredOptions;
+  static #routeMatchingOptions: RouteMatchingOptions = this.#requiredOptions;
 
   /**
    * Configures the router with the given options.
@@ -107,9 +129,9 @@ export class Router {
    * Note that some options will not override Router's defaults as they are flags
    * that are needed to be set to specific value for the Router to work properly.
    *
-   * @param {IRouteMatchingOptions} options The options to configure the router with.
+   * @param options The options to configure the router with.
    */
-  public static configureRouteMatching(options: IRouteMatchingOptions): void {
+  public static configureRouteMatching(options: RouteMatchingOptions): void {
     this.#routeMatchingOptions = { ...options, ...this.#requiredOptions };
   }
 
@@ -163,26 +185,24 @@ export class Router {
    * Adds a route to the router.
    *
    * @param {string} pattern The route pattern.
-   * @param {...IRouteHandlerCollection} handlers The route handlers.
+   * @param handlers The route handlers.
    *
    * @returns {IRouteHandlerAdder} A handler-adder for chaining calls.
    */
   public route(
     pattern: string,
-    ...handlers: IRouteHandlerCollection): IRouteHandlerAdder {
-
+    ...handlers: RouteHandler[]
+  ): IRouteHandlerAdder {
     const route = new Route(
       Router.#transformPathPattern(pattern),
       handlers,
       Router.#routeMatchingOptions,
     );
 
-    this.#routes.push(
-      route,
-    );
+    this.#routes.push(route);
 
     return {
-      add(...handlers: IRouteHandlerCollection) {
+      add(...handlers: RouteHandler[]) {
         route.addHandler(...handlers);
         return this;
       },
@@ -212,7 +232,7 @@ export class Router {
     if (this.#nested)
       throw new RouterError(
         "Navigation using absolute paths is not supported on nested routers. " +
-        "Use the parent router to navigate with absolute paths.",
+          "Use the parent router to navigate with absolute paths.",
       );
 
     if (!this.#history)
@@ -243,13 +263,13 @@ export class Router {
     if (this.#nested)
       throw new RouterError(
         "Navigation using states is not supported on nested routers. " +
-        "Use the parent router to navigate with states.",
+          "Use the parent router to navigate with states.",
       );
 
     if (!this.#history)
       throw new RouterError(
         "Navigation using states is not supported on routers without a history object. " +
-        "Use the parent router to navigate with states.",
+          "Use the parent router to navigate with states.",
       );
 
     this.#context = new RouteContext(state, this.#saveState);
@@ -299,9 +319,61 @@ export class Router {
   };
 
   /**
+   * Start the router with the given options.
+   *
+   * @param {RouterOptions} options The options to start Navi with.
+   *
+   * @return {Router} The router instance.
+   *
+   * @throws {Error} If Navi is already started or if environment is not supported
+   * (e.g. no history API).
+   */
+  public start(options: RouterOptions) {
+    const combinedOptions = { ...defaultOptions, ...options };
+
+    if (Router.#started) {
+      throw new Error("Router is already started");
+    }
+
+    if (!window) {
+      throw new Error("Environment has no window object");
+    }
+
+    if (!document) {
+      throw new Error("Environment has no document object");
+    }
+
+    if (!history) {
+      throw new Error("Environment has no history object");
+    }
+
+    if (!location) {
+      throw new Error("Environment has no location object");
+    }
+
+    Router.#globalRouter = new Router({ nested: false, history });
+
+    if (combinedOptions.bindClick) {
+      window.addEventListener("click", Router.clickHandler);
+    }
+
+    if (combinedOptions.bindPopState) {
+      window.addEventListener("popstate", Router.popStateHandler);
+    }
+
+    Router.#started = true;
+  }
+
+  public stop() {
+    window.removeEventListener("click", Router.clickHandler);
+    window.removeEventListener("popstate", Router.popStateHandler);
+    Router.#started = false;
+  }
+
+  /**
    * Create a middleware with a router instance to be used as a nested router.
    */
-  public static createRouterMiddleware(): INestedRouterMiddleware {
+  public static createNested(): INestedRouterMiddleware {
     const router = new Router({ nested: true });
 
     const middleware = (context: RouteContext, next: () => void) => {
@@ -312,5 +384,39 @@ export class Router {
     middleware.route = router.route.bind(router);
 
     return middleware;
+  }
+
+  /**
+   * The default implementation for handling the click events.
+   * It will look for {@link HTMLAnchorElement} with a `data-relay-link` or `relay-link` attribute.
+   *
+   * @param {MouseEvent} event
+   */
+  public static clickHandler(event: MouseEvent) {
+    if (!Router.#started || !Router.#globalRouter)
+      throw new Error("Router has not started");
+
+    if (
+      event.target instanceof HTMLAnchorElement &&
+      (event.target.hasAttribute("relay-link") ||
+        event.target.hasAttribute("data-relay-link"))
+    ) {
+      Router.#globalRouter.navigateTo(event.target.href);
+    }
+  }
+
+  /**
+   * The default implementation for handling the popstate events.
+   *
+   * @param {PopStateEvent} event
+   */
+  public static popStateHandler(event: PopStateEvent) {
+    if (!Router.#started || !Router.#globalRouter)
+      throw new Error("Router has not started");
+
+    const state = event.state;
+    if (!State.isValid(state)) throw new Error("Invalid state object");
+
+    Router.#globalRouter.navigateWithState(state);
   }
 }
