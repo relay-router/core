@@ -43,19 +43,19 @@ export class BrowserHistory implements History {
           path: state[routerPrivateStateKey].path,
           state,
         };
-        this.#notify(event);
+        this.notifyListeners(event);
       }
     });
   }
 
   push(path: string, state: State) {
     window.history.pushState(state, "", path);
-    this.#notify({ type: "push", path, state });
+    this.notifyListeners({ type: "push", path, state });
   }
 
   replace(path: string, state: State) {
     window.history.replaceState(state, "", path);
-    this.#notify({ type: "replace", path, state });
+    this.notifyListeners({ type: "replace", path, state });
   }
 
   back() {
@@ -70,7 +70,7 @@ export class BrowserHistory implements History {
     window.history.go(delta);
   }
 
-  #notify(event: HistoryEvent) {
+  protected notifyListeners(event: HistoryEvent) {
     const listeners = this.#listeners[event.type];
     if (listeners) {
       for (const listener of listeners) {
@@ -91,5 +91,22 @@ export class BrowserHistory implements History {
     return () => {
       listeners?.delete(cb);
     };
+  }
+}
+
+export class HashHistory extends BrowserHistory {
+  public override push(path: string, state: State) {
+    path = "#" + path;
+    super.push(path, state);
+  }
+
+  public override replace(path: string, state: State) {
+    path = "#" + path;
+    super.replace(path, state);
+  }
+
+  protected override notifyListeners(event: HistoryEvent) {
+    event.path = event.path.replace(/^#/, "");
+    super.notifyListeners(event);
   }
 }

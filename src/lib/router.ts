@@ -343,23 +343,23 @@ export class Router {
    */
   public start() {
     if (Router.#started) {
-      throw new Error("Router is already started");
+      throw new RouterError("Router is already started");
     }
 
     if (!window) {
-      throw new Error("Environment has no window object");
+      throw new RouterError("Environment has no window object");
     }
 
     if (!document) {
-      throw new Error("Environment has no document object");
+      throw new RouterError("Environment has no document object");
     }
 
     if (!history) {
-      throw new Error("Environment has no history object");
+      throw new RouterError("Environment has no history object");
     }
 
     if (!location) {
-      throw new Error("Environment has no location object");
+      throw new RouterError("Environment has no location object");
     }
 
     window.addEventListener("click", Router.clickHandler);
