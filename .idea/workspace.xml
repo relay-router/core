@@ -2,20 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="40c52454-874c-47af-80f6-a4e557b42f94" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.prettierrc.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tsconfig.base.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.eslintrc.js" beforeDir="false" afterPath="$PROJECT_DIR$/.eslintrc.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/prettier.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.npmignore" beforeDir="false" afterPath="$PROJECT_DIR$/.npmignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.prettierignore" beforeDir="false" afterPath="$PROJECT_DIR$/.prettierignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.prettierrc.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jest.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/jest.config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/route-context.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/route-context.test.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/route-context.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/route-context.ts" afterDir="false" />
@@ -28,8 +15,6 @@
       <change beforePath="$PROJECT_DIR$/src/lib/state.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/state.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/string-map.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/string-map.test.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/string-map.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/string-map.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tsconfig.build.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.build.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,7 +28,7 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectId" id="25gBEDPVALlNmu2CDTdzwFg5URY" />
   <component name="ProjectViewState">
@@ -62,7 +47,7 @@
     <property name="ts.external.directory.path" value="F:\Files\Repositories\Node\relayjs\core\node_modules\typescript\lib" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
-  <component name="RunManager" selected="npm.build">
+  <component name="RunManager" selected="npm.test">
     <configuration name="build" type="js.build_tools.npm" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
       <command value="run" />
@@ -108,7 +93,7 @@
       <option name="presentableId" value="Default" />
       <updated>1645938735975</updated>
       <workItem from="1645938737127" duration="9628000" />
-      <workItem from="1645949663300" duration="3908000" />
+      <workItem from="1645949663300" duration="5338000" />
     </task>
     <servers />
   </component>

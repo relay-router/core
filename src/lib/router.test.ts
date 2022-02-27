@@ -1,8 +1,7 @@
 /** @format */
 
 import { Router } from "./router";
-import { routerPrivateStateKey, State } from "./state";
-import { RouteContext } from "./route-context";
+import { routerPrivateStateKey } from "./state";
 
 describe("Router", () => {
   const dummyPathWithQueryAndHash = "/path?query=value#hash";
@@ -16,29 +15,32 @@ describe("Router", () => {
     jest.clearAllMocks();
   });
 
-  test("navigateTo will cause the router to call the matching route handler", () => {
-    const router = new Router({ nested: false, history });
-    const mockedHandler = jest.fn();
-    router.route("/path", mockedHandler);
+  test("navigateTo will cause the router to call the matching route handler",
+       () => {
+         const router = new Router({ nested: false, history });
+         const mockedHandler = jest.fn();
+         router.route("/path", mockedHandler);
 
-    router.navigateTo(dummyPathWithQueryAndHash);
+         router.navigateTo(dummyPathWithQueryAndHash);
 
-    expect(mockedHandler).toHaveBeenCalled();
-  });
+         expect(mockedHandler).toHaveBeenCalled();
+       });
 
-  test("navigateTo will cause the router to call pushState  on the history object", () => {
-    const router = new Router({ nested: false, history });
+  test(
+    "navigateTo will cause the router to call pushState  on the history object",
+    () => {
+      const router = new Router({ nested: false, history });
 
-    router.route("/path", jest.fn());
+      router.route("/path", jest.fn());
 
-    router.navigateTo(dummyPathWithQueryAndHash);
+      router.navigateTo(dummyPathWithQueryAndHash);
 
-    expect(history.pushState).toHaveBeenCalledTimes(1);
-  });
+      expect(history.pushState).toHaveBeenCalledTimes(1);
+    });
 
   test(
     "navigateTo will cause the router to call pushState " +
-      "on the history object with the correct path",
+    "on the history object with the correct path",
     () => {
       const router = new Router({ nested: false, history });
 
@@ -63,65 +65,6 @@ describe("Router", () => {
     router.route("/path", jest.fn());
 
     expect(() => router.navigateTo(dummyPathWithQueryAndHash)).toThrow();
-  });
-
-  test("navigateWithState will cause a handler to be called", () => {
-    const router = new Router({ nested: false, history });
-    const mockedHandler = jest.fn();
-    router.route("/path", mockedHandler);
-
-    router.navigateWithState(State.fromPrivateState({ path: "/path" }));
-
-    expect(mockedHandler).toHaveBeenCalled();
-  });
-
-  test("navigateWithState will not call pushState on the history object", () => {
-    const router = new Router({ nested: false, history });
-
-    router.route("/path", jest.fn());
-
-    router.navigateWithState(State.fromPrivateState({ path: "/path" }));
-
-    expect(history.pushState).not.toHaveBeenCalled();
-  });
-
-  test("navigateWithContext will cause a handler to be called", () => {
-    const router = new Router({ nested: false, history });
-    const mockedHandler = jest.fn();
-    const context = new RouteContext(
-      State.fromPrivateState({ path: "/path" }),
-      jest.fn(),
-    );
-
-    router.route("/path", mockedHandler);
-
-    router.navigateWithContext(context);
-
-    expect(mockedHandler).toHaveBeenCalled();
-  });
-
-  test("navigateWithContext will not call pushState on the history object", () => {
-    const router = new Router({ nested: false, history });
-    const context = new RouteContext(
-      State.fromPrivateState({ path: "/path" }),
-      jest.fn(),
-    );
-
-    router.route("/path", jest.fn());
-
-    router.navigateWithContext(context);
-
-    expect(history.pushState).not.toHaveBeenCalled();
-  });
-
-  test("navigateWithContext will throw when a handler is not found", () => {
-    const router = new Router({ nested: false, history });
-    const context = new RouteContext(
-      State.fromPrivateState({ path: "/path" }),
-      jest.fn(),
-    );
-
-    expect(() => router.navigateWithContext(context)).toThrowError();
   });
 
   test("calling route should return an object to add more handlers", () => {

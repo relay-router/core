@@ -1,5 +1,3 @@
-/** @format */
-
 import { type IStateSaverCallback, RouteContext } from "./route-context";
 import { Route } from "./route";
 import type {
@@ -259,7 +257,7 @@ export class Router {
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/popstate_event
    */
-  public navigateWithState(state: State) {
+  private navigateWithState(state: State) {
     if (this.#nested)
       throw new RouterError(
         "Navigation using states is not supported on nested routers. " +
@@ -284,7 +282,7 @@ export class Router {
    * @throws {Error} If no {@link RouteContext.handled} is still false
    * after calling all the handlers.
    */
-  public navigateWithContext(context: RouteContext) {
+  private navigateWithContext(context: RouteContext) {
     for (const route of this.#routes) {
       if (route.handle(context)) return;
     }
@@ -365,6 +363,8 @@ export class Router {
   }
 
   public stop() {
+    if (!Router.#started) return;
+
     window.removeEventListener("click", Router.clickHandler);
     window.removeEventListener("popstate", Router.popStateHandler);
     Router.#started = false;

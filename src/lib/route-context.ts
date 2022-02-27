@@ -1,5 +1,3 @@
-/** @format */
-
 import { StringMap } from "./string-map";
 import type { State } from "./state";
 import { routerPrivateStateKey } from "./state";

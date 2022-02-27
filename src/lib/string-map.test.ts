@@ -1,5 +1,3 @@
-/** @format */
-
 import { StringMap } from "./string-map";
 
 describe("StringMap", () => {

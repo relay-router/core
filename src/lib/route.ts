@@ -1,5 +1,3 @@
-/** @format */
-
 import { type Key, pathToRegexp } from "path-to-regexp";
 import type { RouteContext } from "./route-context";
 import type { RouteMatchingOptions, RouteHandler } from "./router";

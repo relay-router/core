@@ -1,5 +1,3 @@
-/** @format */
-
 import { Route } from "./route";
 import { RouteContext } from "./route-context";
 import { routerPrivateStateKey, State } from "./state";

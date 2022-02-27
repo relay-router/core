@@ -1,5 +1,3 @@
-/** @format */
-
 import { RouterError } from "./router-error";
 
 interface StringRecord {
