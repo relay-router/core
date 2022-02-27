@@ -118,7 +118,7 @@ describe("RouteContext", () => {
 
   test("setting the state should save it to the publicState", () => {
     let historyState: any;
-    const saveStateFn = jest.fn((state) => (historyState = state));
+    const saveStateFn = jest.fn((_, state) => (historyState = state));
     const routeContext = new RouteContext(
       createStateFromPath(dummyPathWithQueryAndHash),
       saveStateFn,
@@ -132,7 +132,7 @@ describe("RouteContext", () => {
 
   test("setting the state should also save the privateState", () => {
     let historyState: any;
-    const saveStateFn = jest.fn((state) => (historyState = state));
+    const saveStateFn = jest.fn((_, state) => (historyState = state));
     const routeContext = new RouteContext(
       createStateFromPath(dummyPathWithQueryAndHash),
       saveStateFn,

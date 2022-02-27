@@ -2,13 +2,15 @@
 
 import { Router } from "./router";
 import { routerPrivateStateKey } from "./state";
+import { createBrowserHistory } from "history";
 
 describe("Router", () => {
   const dummyPathWithQueryAndHash = "/path?query=value#hash";
+  const history = createBrowserHistory();
 
-  beforeEach(() => {
-    jest.spyOn(history, "pushState");
-    jest.spyOn(history, "replaceState");
+  beforeAll(() => {
+    jest.spyOn(history, "push");
+    jest.spyOn(history, "replace");
   });
 
   afterEach(() => {
@@ -35,7 +37,7 @@ describe("Router", () => {
 
       router.navigateTo(dummyPathWithQueryAndHash);
 
-      expect(history.pushState).toHaveBeenCalledTimes(1);
+      expect(history.push).toHaveBeenCalledTimes(1);
     });
 
   test(
@@ -48,13 +50,12 @@ describe("Router", () => {
 
       router.navigateTo("/path");
 
-      expect(history.pushState).toHaveBeenCalledWith(
+      expect(history.push).toHaveBeenCalledWith(
+        "/path",
         {
           [routerPrivateStateKey]: { path: "/path" },
           publicState: undefined,
         },
-        expect.any(String),
-        "/path",
       );
     },
   );

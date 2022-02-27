@@ -7,6 +7,8 @@ import type {
 } from "path-to-regexp";
 import { State } from "./state";
 import { RouterError } from "./router-error";
+import type { History } from "history";
+import { createBrowserHistory } from "history";
 
 export type RouterOptions = {
   /**
@@ -68,13 +70,13 @@ export interface RouteHandler {
 
 type RouterParams =
   | {
-      nested: true;
-      history?: History;
-    }
+  nested: true;
+  history?: History;
+}
   | {
-      nested: false;
-      history: History;
-    };
+  nested: false;
+  history: History;
+};
 
 interface INestedRouterMiddleware extends RouteHandler {
   route: Router["route"];
@@ -105,7 +107,7 @@ interface IRouteHandlerAdder {
  *    its handler with the context instance.
  */
 export class Router {
-  static #globalRouter: Router | undefined;
+  static #globalRouter?: Router;
   static #started = false;
   /**
    * Path-to-regexp configurations that are required for Router to work properly.
@@ -230,14 +232,14 @@ export class Router {
     if (this.#nested)
       throw new RouterError(
         "Navigation using absolute paths is not supported on nested routers. " +
-          "Use the parent router to navigate with absolute paths.",
+        "Use the parent router to navigate with absolute paths.",
       );
 
     if (!this.#history)
       throw new RouterError("No history object was provided to the router");
 
     const state = State.fromPrivateState({ path: absolutePath });
-    this.#history.pushState(state, "", absolutePath);
+    this.#history.push(absolutePath, state);
 
     this.navigateWithState(state);
   }
@@ -261,13 +263,13 @@ export class Router {
     if (this.#nested)
       throw new RouterError(
         "Navigation using states is not supported on nested routers. " +
-          "Use the parent router to navigate with states.",
+        "Use the parent router to navigate with states.",
       );
 
     if (!this.#history)
       throw new RouterError(
         "Navigation using states is not supported on routers without a history object. " +
-          "Use the parent router to navigate with states.",
+        "Use the parent router to navigate with states.",
       );
 
     this.#context = new RouteContext(state, this.#saveState);
@@ -300,20 +302,18 @@ export class Router {
    * the state of the router to the history.
    *
    * @param state
-   * @param title
    * @param url
    */
   readonly #saveState: IStateSaverCallback = (
-    state: State,
-    title: string,
     url: string,
+    state: State
   ) => {
     if (!this.#history)
       throw new RouterError(
-        "Saved a state to the history, but the router has no history object.",
+        "Tried a state to the history, but the router has no history object.",
       );
 
-    this.#history?.replaceState(state, title, url);
+    this.#history.replace(url, state);
   };
 
   /**
@@ -349,7 +349,7 @@ export class Router {
       throw new Error("Environment has no location object");
     }
 
-    Router.#globalRouter = new Router({ nested: false, history });
+    Router.#globalRouter = new Router({ nested: false, history: createBrowserHistory() });
 
     if (combinedOptions.bindClick) {
       window.addEventListener("click", Router.clickHandler);
@@ -399,7 +399,7 @@ export class Router {
     if (
       event.target instanceof HTMLAnchorElement &&
       (event.target.hasAttribute("relay-link") ||
-        event.target.hasAttribute("data-relay-link"))
+       event.target.hasAttribute("data-relay-link"))
     ) {
       Router.#globalRouter.navigateTo(event.target.href);
     }

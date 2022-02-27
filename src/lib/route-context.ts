@@ -3,7 +3,7 @@ import type { State } from "./state";
 import { routerPrivateStateKey } from "./state";
 
 export interface IStateSaverCallback {
-  (state: State, title: string, url: string): unknown;
+  (url: string, state: State): unknown;
 }
 
 /**
@@ -149,6 +149,6 @@ export class RouteContext {
    * @return {void} void
    */
   public saveState() {
-    this.#stateSaverCb(this.#state, "", this.path);
+    this.#stateSaverCb(this.path, this.#state);
   }
 }
