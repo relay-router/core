@@ -1,8 +1,7 @@
 import { Router } from "./lib/router";
-
 import { State } from "./lib/state";
 
-type RutaOptions = {
+type RouterOptions = {
   /**
    * Flag to signal the router to bind a handler
    * ({@link popStateHandler}) to the popstate event.
@@ -34,7 +33,7 @@ type RutaOptions = {
   initialDispatch?: boolean;
 };
 
-const defaultOptions: RutaOptions = {
+const defaultOptions: RouterOptions = {
   bindPopState: true,
   bindClick: true,
   initialDispatch: true,
@@ -46,18 +45,18 @@ let started = false;
 /**
  * Start Navi with the given options.
  *
- * @param {RutaOptions} options The options to start Navi with.
+ * @param {RouterOptions} options The options to start Navi with.
  *
  * @return {Router} The router instance.
  *
  * @throws {Error} If Navi is already started or if environment is not supported
  * (e.g. no history API).
  */
-function start(options?: RutaOptions) {
+function start(options?: RouterOptions) {
   const combinedOptions = { ...defaultOptions, ...options };
 
   if (started) {
-    throw new Error("Ruta is already started");
+    throw new Error("Router is already started");
   }
 
   if (!window) {
@@ -91,22 +90,17 @@ function start(options?: RutaOptions) {
 
 /**
  * The default implementation for handling the click events.
- * It will look for {@link HTMLAnchorElement} and their `href` property
- * as the path to navigate to.
- *
- * Using the {@link HTMLAnchorElement.href} property ensures that the
- * path is resolved to an absolute path because Ruta doesn't support
- * relative paths out of the box.
+ * It will look for {@link HTMLAnchorElement} with a `data-relay-link` or `relay-link` attribute.
  *
  * @param {MouseEvent} event
  */
 function clickHandler(event: MouseEvent) {
-  if (!started || !globalRouter) throw new Error("Ruta has not started");
+  if (!started || !globalRouter) throw new Error("Router has not started");
 
-  if (event.target instanceof HTMLAnchorElement) {
-    const href = event.target.href;
-
-    navigateTo(href);
+  if (event.target instanceof HTMLAnchorElement &&
+      (event.target.hasAttribute("data-relay-link") ||
+       event.target.hasAttribute("relay-link"))) {
+    navigateTo(event.target.href);
   }
 }
 
@@ -118,7 +112,7 @@ function clickHandler(event: MouseEvent) {
 function popStateHandler(event: PopStateEvent) {
   const state = event.state;
 
-  if (!started || !globalRouter) throw new Error("Ruta has not started");
+  if (!started || !globalRouter) throw new Error("Router has not started");
 
   if (!State.isValid(state)) throw new Error("Invalid state object");
 
@@ -126,17 +120,39 @@ function popStateHandler(event: PopStateEvent) {
 }
 
 /**
- * Rutagate to the given path. It can only handle absolute paths.
- * If the path is relative, it will be resolved to an absolute path.
+ * Navigate to the given path. It can only handle absolute paths.
  *
  * @param {string} absolutePath The path to navigate to.
  *
- * @throws {Error} If Ruta has not started.
+ * @throws {Error} If Router has not started.
  */
 function navigateTo(absolutePath: string) {
-  if (!started || !globalRouter) throw new Error("Ruta has not started");
+  if (!started || !globalRouter) throw new Error("Router has not started");
 
   globalRouter.navigateTo(absolutePath);
 }
 
-export { type RutaOptions, start, clickHandler, popStateHandler, navigateTo };
+/**
+ * Registers a route for the global router.
+ *
+ * @param {string} path The path to register the route for.
+ *
+ * @param {...IRoute} handlers The handler to register.
+ */
+const route: Router["route"] = (path, ...handlers) => {
+  if (!started || !globalRouter) throw new Error("Router has not started");
+
+  return globalRouter.route(path, ...handlers);
+};
+
+const createNestedRouter = Router.createRouterMiddleware;
+
+export {
+  type RouterOptions,
+  start,
+  clickHandler,
+  popStateHandler,
+  navigateTo,
+  createNestedRouter,
+  route,
+};
