@@ -1,15 +1,15 @@
 {
-  "name": "eel",
+  "name": "@relayjs/core",
   "version": "0.0.1",
   "description": "A Simple Framework-Agnostic Routing Library",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "types": "commonjs",
   "type": "commonjs",
   "scripts": {
     "test": "npx jest",
     "lint": "npx eslint .",
     "format": "npx prettier .",
-    "build": "npx tsc",
+    "build": "npm run test && npm run format && npm run lint && npx tsc -p ./tsconfig.build.json",
     "doc": "npx typedoc ."
   },
   "keywords": [

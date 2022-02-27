@@ -130,12 +130,9 @@ describe("Router", () => {
   test("calling route should return an object to add more handlers", () => {
     const router = new Router({ nested: false, history });
     const mockedMiddleware = jest.fn((context, next) => {
-      console.log("middleware called");
       next();
     });
-    const mockedHandler = jest.fn(() => {
-      console.log("handler called");
-    });
+    const mockedHandler = jest.fn();
 
     router
       .route("/path", mockedMiddleware)

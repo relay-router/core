@@ -284,10 +284,9 @@ describe("Route", () => {
         jest.fn(),
       );
 
-      const handler1 = jest.fn(() => {
-      }) as IRouteMiddleware;
+      const handler1 = jest.fn();
 
-      const handler2 = jest.fn() as IRouteCallback;
+      const handler2 = jest.fn();
 
       const route1 = new Route(
         "/path",
