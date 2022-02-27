@@ -7,13 +7,11 @@ import type {
 } from "path-to-regexp";
 import { State } from "./state";
 import { RouterError } from "./router-error";
-import type { History } from "history";
-import { createBrowserHistory } from "history";
+import type { History } from "./history";
 
 export type RouterOptions = {
   /**
    * Flag to signal the router to bind a handler
-   * ({@link popStateHandler}) to the popstate event.
    * This will allow the router to react when the user clicks the back button.
    *
    * @type {boolean}
@@ -49,13 +47,13 @@ export type RouterOptions = {
    */
   useHash?: boolean;
 };
-
-const defaultOptions: RouterOptions = {
-  bindPopState: true,
-  bindClick: true,
-  initialDispatch: true,
-  useHash: false,
-};
+//
+// const defaultOptions: RouterOptions = {
+//   bindPopState: true,
+//   bindClick: true,
+//   initialDispatch: true,
+//   useHash: false,
+// };
 
 /**
  * A helper type for configuring path-to-regexp options.
@@ -71,7 +69,7 @@ export interface RouteHandler {
 type RouterParams =
   | {
   nested: true;
-  history?: History;
+  history?: never;
 }
   | {
   nested: false;
@@ -171,11 +169,28 @@ export class Router {
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/History
    */
-  constructor({ nested, history }: RouterParams) {
+  constructor({ nested = true, history }: RouterParams) {
+    if (!nested && Router.#globalRouter) {
+      throw new Error("A global Router already exists, you can only " +
+                      "create nested routers after the global router " +
+                      "has been created.");
+    }
+
     this.#nested = nested;
 
     if (!nested) {
+      if (!history) {
+        throw new Error("A history object must be provided when creating " +
+                        "a global router.");
+      }
+
       this.#history = history;
+      Router.#globalRouter = this;
+
+
+      this.#history.on("pop", (event) => {
+        this.navigateWithState(event.state);
+      });
     }
 
     this.#routes = [];
@@ -184,10 +199,10 @@ export class Router {
   /**
    * Adds a route to the router.
    *
-   * @param {string} pattern The route pattern.
+   * @param pattern The route pattern.
    * @param handlers The route handlers.
    *
-   * @returns {IRouteHandlerAdder} A handler-adder for chaining calls.
+   * @returns A handler-adder for chaining calls.
    */
   public route(
     pattern: string,
@@ -224,7 +239,7 @@ export class Router {
    * Lastly, it will delegate the next steps to {@link Router.navigateWithState}
    * by calling it with the state instance.
    *
-   * @param {string} absolutePath should be an absolute path
+   * @param absolutePath should be an absolute path
    *
    * @throws {RouterError} If called on a nested router.
    */
@@ -251,9 +266,9 @@ export class Router {
    * This is useful when you want to restore the context from the state
    * retrieved from the popstate event.
    *
-   * This is used by {@link popStateHandler}.
+   * @internal
    *
-   * @param {State} state The state to restore the context from.
+   * @param state The state to restore the context from.
    *
    * @throw {Error} If called on a nested router.
    *
@@ -278,6 +293,8 @@ export class Router {
 
   /**
    * Calls the handlers for the given context.
+   *
+   * @internal
    *
    * @param context
    *
@@ -306,7 +323,7 @@ export class Router {
    */
   readonly #saveState: IStateSaverCallback = (
     url: string,
-    state: State
+    state: State,
   ) => {
     if (!this.#history)
       throw new RouterError(
@@ -319,16 +336,12 @@ export class Router {
   /**
    * Start the router with the given options.
    *
-   * @param {RouterOptions} options The options to start Navi with.
-   *
    * @return {Router} The router instance.
    *
    * @throws {Error} If Navi is already started or if environment is not supported
    * (e.g. no history API).
    */
-  public start(options: RouterOptions) {
-    const combinedOptions = { ...defaultOptions, ...options };
-
+  public start() {
     if (Router.#started) {
       throw new Error("Router is already started");
     }
@@ -349,15 +362,7 @@ export class Router {
       throw new Error("Environment has no location object");
     }
 
-    Router.#globalRouter = new Router({ nested: false, history: createBrowserHistory() });
-
-    if (combinedOptions.bindClick) {
-      window.addEventListener("click", Router.clickHandler);
-    }
-
-    if (combinedOptions.bindPopState) {
-      window.addEventListener("popstate", Router.popStateHandler);
-    }
+    window.addEventListener("click", Router.clickHandler);
 
     Router.#started = true;
   }
@@ -366,7 +371,6 @@ export class Router {
     if (!Router.#started) return;
 
     window.removeEventListener("click", Router.clickHandler);
-    window.removeEventListener("popstate", Router.popStateHandler);
     Router.#started = false;
   }
 
@@ -390,6 +394,8 @@ export class Router {
    * The default implementation for handling the click events.
    * It will look for {@link HTMLAnchorElement} with a `data-relay-link` or `relay-link` attribute.
    *
+   * @internal
+   *
    * @param {MouseEvent} event
    */
   public static clickHandler(event: MouseEvent) {
@@ -402,21 +408,7 @@ export class Router {
        event.target.hasAttribute("data-relay-link"))
     ) {
       Router.#globalRouter.navigateTo(event.target.href);
+      event.preventDefault();
     }
-  }
-
-  /**
-   * The default implementation for handling the popstate events.
-   *
-   * @param {PopStateEvent} event
-   */
-  public static popStateHandler(event: PopStateEvent) {
-    if (!Router.#started || !Router.#globalRouter)
-      throw new Error("Router has not started");
-
-    const state = event.state;
-    if (!State.isValid(state)) throw new Error("Invalid state object");
-
-    Router.#globalRouter.navigateWithState(state);
   }
 }

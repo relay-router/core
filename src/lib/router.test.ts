@@ -1,12 +1,11 @@
-/** @format */
-
 import { Router } from "./router";
 import { routerPrivateStateKey } from "./state";
-import { createBrowserHistory } from "history";
+import { BrowserHistory } from "./history";
+
 
 describe("Router", () => {
   const dummyPathWithQueryAndHash = "/path?query=value#hash";
-  const history = createBrowserHistory();
+  const history = new BrowserHistory();
 
   beforeAll(() => {
     jest.spyOn(history, "push");
@@ -128,4 +127,34 @@ describe("Router", () => {
 
     expect(mockedHandler).toHaveBeenCalled();
   });
+
+  test("creating another global router will throw", () => {
+    new Router({ nested: false, history });
+
+    expect(() => new Router({ nested: false, history })).toThrow();
+  });
+  //
+  // test.only("a hash router should save the path prefixed with a hash", () => {
+  //   // const browserHistory = createBrowserHistory();
+  //   const memoryHistory = createMemoryHistory();
+  //
+  //   const router = new Router({ nested: false, history: memoryHistory });
+  //   const mockedHandler = jest.fn();
+  //
+  //   memoryHistory.listen(update => {
+  //     console.log("update: ", update);
+  //   });
+  //
+  //   router.route("/path", mockedHandler);
+  //   router.route("/", mockedHandler);
+  //
+  //   router.navigateTo("/path?key=value#hash");
+  //   router.navigateTo("/");
+  //   router.navigateTo("/path#hash");
+  //
+  //   memoryHistory.back();
+  //   memoryHistory.back();
+  //
+  //   expect(true).toBe(true);
+  // });
 });

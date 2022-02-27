@@ -71,4 +71,8 @@ export class State {
   public static isValid(unknownState: any): unknownState is State {
     return typeof unknownState?.[routerPrivateStateKey]?.path === "string";
   }
+
+  public static [Symbol.hasInstance](unknownState: any): unknownState is State {
+    return State.isValid(unknownState);
+  }
 }
