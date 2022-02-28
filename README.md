@@ -18,12 +18,6 @@ const router = new Router(new BrowserHistory());
 
 // Routes should always be defined with a leading slash
 
-// Matches root path
-router.route("/", () => {
-  // ...
-  console.log("We are at the root path");
-});
-
 // Matches paths that starts with "/home"
 router.route("/home", () => {
   // ...
@@ -81,11 +75,6 @@ import { Router, BrowserHistory } from "@relayjs/core";
 const router = new Router(new BrowserHistory());
 const petsRouter = Router.createNested();
 
-petsRouter.route("/", () => {
-  // ...
-  console.log("Root route, home of all pets :)");
-});
-
 petsRouter.route("/george", () => {
   // ...
   console.log("Hello, I'm George the Dog! Woof!");
@@ -95,6 +84,14 @@ petsRouter.route("/pikachu", () => {
   // ...
   console.log("Pika pikaaaaa!");
 });
+
+// Root routes, just like wildcard routes, match everything so
+// they should be registered after all other routes.
+petsRouter.route("/", () => {
+  // ...
+  console.log("Root route, home of all pets :)");
+});
+
 
 // Register the nested router as a middleware to the main router
 router.route("/pets", petsRouter);

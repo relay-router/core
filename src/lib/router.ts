@@ -189,7 +189,7 @@ export class Router {
    * @internal
    */
   private static transformPathPattern(pattern: string) {
-    if (pattern === "*") return "";
+    if (pattern === "*" || pattern === "/") return "";
 
     return pattern;
   }
@@ -303,7 +303,7 @@ export class Router {
     if (Router._globalRouter)
       throw new RouterError(
         "A Global Router has already been started. " +
-          "Use Router.global to access it.",
+        "Use Router.global to access it.",
       );
 
     if (this._started) {
@@ -391,7 +391,7 @@ export class Router {
     if (
       event.target instanceof HTMLAnchorElement &&
       (event.target.hasAttribute("relay-link") ||
-        event.target.hasAttribute("data-relay-link"))
+       event.target.hasAttribute("data-relay-link"))
     ) {
       Router._globalRouter.navigateTo(event.target.href);
       event.preventDefault();

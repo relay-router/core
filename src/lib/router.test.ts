@@ -83,6 +83,18 @@ describe("Router", () => {
     expect(mockedHandler).toHaveBeenCalledTimes(3);
   });
 
+  test("root paths will match everything", () => {
+    const mockedHandler = jest.fn();
+
+    router.route("/", mockedHandler);
+
+    router.navigateTo("/parent/child");
+    router.navigateTo("/");
+    router.navigateTo("/other");
+
+    expect(mockedHandler).toHaveBeenCalledTimes(3);
+  });
+
   test("a router will delegate to a nested router", () => {
     const nestedRouter = Router.createNested();
     const mockedHandler = jest.fn();
