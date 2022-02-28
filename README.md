@@ -148,7 +148,7 @@ const router = new Router(new BrowserHistory());
 
 // Sometimes we want to inspect the context before we navigate to a route
 // We can define middleware to do this
-// Every callback we pass to the route is a middleware
+// Every callback we pass to the route is can be made into a middleware
 // The only difference is middlewares should accept a "next" callback
 // as the second argument
 router.route("/user/:userId", (context, next) => {
@@ -170,13 +170,23 @@ router.route("/user/:userId", (context, next) => {
 
 // NOTE: The same route can have multiple middlewares
 // They are called in the order they are registered
-router.route("/user/:userId", (context) => {
+router.route("/user/:userId", (context, next) => {
 
   // We can access the information that was given by the middleware
   const userInfo = context.state.userInfo;
 
   console.log(`Name: ${userInfo.fullname}`);
 
-  // We don't call next() here, so the router will not continue
+  // We will not call next() here so the router will flag the route context as handled
+  // and will not call any other handlers
 });
+
+// Will not get called because the route context will be flagged as handled
+// before this callback is called
+router.route("/user/:userId", () => {
+  // unreachable
+});
+
+// Will cause the first two middlewares to be called
+router.navigateTo("/user/123");
 ```

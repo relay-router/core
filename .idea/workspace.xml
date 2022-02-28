@@ -4,8 +4,7 @@
     <list default="true" id="40c52454-874c-47af-80f6-a4e557b42f94" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/route-context.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/route-context.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/router.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/router.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,7 +43,7 @@
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="prettierjs.PrettierConfiguration.Package" value="F:\Files\Repositories\Node\relayjs\core\node_modules\prettier" />
     <property name="settings.editor.selected.configurable" value="configurable.group.language" />
-    <property name="ts.external.directory.path" value="F:\Files\Repositories\Node\relayjs\core\node_modules\typescript\lib" />
+    <property name="ts.external.directory.path" value="C:\Users\clare\AppData\Local\JetBrains\Toolbox\apps\WebStorm\ch-0\213.6777.57\plugins\JavaScriptLanguage\jsLanguageServicesImpl\external" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RunManager" selected="npm.doc">
@@ -107,7 +106,7 @@
       <workItem from="1645949663300" duration="24212000" />
       <workItem from="1646007155743" duration="15651000" />
       <workItem from="1646027057310" duration="869000" />
-      <workItem from="1646029668696" duration="15216000" />
+      <workItem from="1646029668696" duration="16410000" />
     </task>
     <servers />
   </component>
