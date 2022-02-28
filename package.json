@@ -8,9 +8,10 @@
     "test": "npx jest",
     "lint": "npx eslint .",
     "check": "npx tsc --noEmit && npm run lint",
-    "clean": "rmdir -r ./dist",
+    "clean": "npx tsc --build --clean",
     "format": "npx prettier . --write",
-    "build": "npm run clean && npm run test && npm run format && npm run lint && npx tsc -p ./tsconfig.build.json",
+    "build-ts": "npx tsc -p ./tsconfig.build.json",
+    "build": "npm run clean && npm run test && npm run format && npm run lint && npm run build-ts",
     "doc": "npx typedoc ."
   },
   "keywords": [
@@ -36,7 +37,6 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
-    "history": "^5.3.0",
     "path-to-regexp": "^6.2.0",
     "tslib": "^2.3.1"
   }

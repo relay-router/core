@@ -1,6 +1,6 @@
 import { Route } from "./route";
 import { RouteContext } from "./route-context";
-import { routerPrivateStateKey, State } from "./state";
+import { ROUTER_PRIVATE_STATE_KEY, State } from "./state";
 
 describe("Route", () => {
   const dummyPathWithQueryAndHash =
@@ -9,7 +9,7 @@ describe("Route", () => {
 
   function createStateFromPath(path: string): State {
     return {
-      [routerPrivateStateKey]: {
+      [ROUTER_PRIVATE_STATE_KEY]: {
         path,
       },
     };

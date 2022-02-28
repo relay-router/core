@@ -17,28 +17,28 @@ export class Route {
    * The handlers to call when the route matches.
    * @private
    */
-  readonly #handlers: RouteHandler[];
+  private readonly _handlers: RouteHandler[];
 
   /**
    * The pattern to match against.
    * @private
    */
-  readonly #regex: RegExp;
+  private readonly _regex: RegExp;
 
   /**
    * The keys of the parameters in the pattern.
    * @private
    */
-  readonly #keys: Key[];
+  private readonly _keys: Key[];
 
   constructor(
     pattern: string,
     handlers: RouteHandler[],
     matchingOptions?: RouteMatchingOptions,
   ) {
-    this.#keys = [];
-    this.#regex = pathToRegexp(pattern, this.#keys, matchingOptions);
-    this.#handlers = handlers;
+    this._keys = [];
+    this._regex = pathToRegexp(pattern, this._keys, matchingOptions);
+    this._handlers = handlers;
   }
 
   /**
@@ -48,14 +48,14 @@ export class Route {
    * @param path The path to match against.
    * @param context The context to use for the matching.
    */
-  #parseParamsAndStoreToContext(path: string, context: RouteContext): void {
-    const matches = this.#regex.exec(path);
+  private parseParamsAndStoreToContext(path: string, context: RouteContext): void {
+    const matches = this._regex.exec(path);
 
     if (matches) {
       context.matched += matches[0];
 
       for (let i = 1; i < matches.length; i++) {
-        const key = this.#keys[i - 1];
+        const key = this._keys[i - 1];
         const value = matches[i];
         if (key !== undefined && value !== undefined) {
           context.param.addStringToKey(key.name.toString(), value);
@@ -70,7 +70,7 @@ export class Route {
    * @param handlers
    */
   public addHandler(...handlers: RouteHandler[]): void {
-    this.#handlers.push(...handlers);
+    this._handlers.push(...handlers);
   }
 
   /**
@@ -95,9 +95,9 @@ export class Route {
 
     if (!pathToHandle) pathToHandle = "/";
 
-    if (!this.#regex.test(pathToHandle)) return false;
+    if (!this._regex.test(pathToHandle)) return false;
 
-    this.#parseParamsAndStoreToContext(pathToHandle, context);
+    this.parseParamsAndStoreToContext(pathToHandle, context);
 
     let callNextHandler = false;
 
@@ -105,7 +105,7 @@ export class Route {
       callNextHandler = true;
     };
 
-    for (const handler of this.#handlers) {
+    for (const handler of this._handlers) {
       callNextHandler = false;
       handler(context, next);
 

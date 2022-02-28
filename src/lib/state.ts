@@ -3,10 +3,10 @@ import { RouterError } from "./router-error";
 /**
  * Key string for accessing Router's private state stored in history.state.
  * @example```typescript
- * const routerState = history.state[routerPrivateStateKey];
+ * const routerState = history.state[ROUTER_PRIVATE_STATE_KEY];
  * ```
  */
-export const routerPrivateStateKey = "__RouterPrivateStateKey_DO_NOT_TAMPER__";
+export const ROUTER_PRIVATE_STATE_KEY = "__RouterPrivateStateKey_DO_NOT_TAMPER__";
 
 /**
  * The structure of the Router's private state
@@ -23,7 +23,7 @@ export interface RouterPrivateState {
  * A convenience type creating the state object to be stored in history.state.
  * Contains a {@link State.publicState} field where the public state is stored,
  * And a field where Router's private state is stored, which can be accessed
- * using the {@link routerPrivateStateKey} constant.
+ * using the {@link ROUTER_PRIVATE_STATE_KEY} constant.
  *
  * This goes without saying, the private state is not meant to be tampered with.
  */
@@ -31,7 +31,7 @@ export class State {
   /**
    * The private state to be used internally by Router.
    */
-  public [routerPrivateStateKey]: RouterPrivateState;
+  public [ROUTER_PRIVATE_STATE_KEY]: RouterPrivateState;
 
   /**
    * The public state for clients to access.
@@ -48,7 +48,7 @@ export class State {
       throw new RouterError("Invalid state object");
     }
 
-    this[routerPrivateStateKey] = unknownState[routerPrivateStateKey];
+    this[ROUTER_PRIVATE_STATE_KEY] = unknownState[ROUTER_PRIVATE_STATE_KEY];
     this.publicState = unknownState.publicState;
   }
 
@@ -59,7 +59,7 @@ export class State {
    */
   public static fromPrivateState(privateState: RouterPrivateState): State {
     return new State({
-      [routerPrivateStateKey]: privateState,
+      [ROUTER_PRIVATE_STATE_KEY]: privateState,
     });
   }
 
@@ -69,7 +69,7 @@ export class State {
    * @param {any} unknownState the object to validate
    */
   public static isValid(unknownState: any): unknownState is State {
-    return typeof unknownState?.[routerPrivateStateKey]?.path === "string";
+    return typeof unknownState?.[ROUTER_PRIVATE_STATE_KEY]?.path === "string";
   }
 
   public static [Symbol.hasInstance](unknownState: any): unknownState is State {

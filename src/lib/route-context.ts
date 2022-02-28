@@ -1,6 +1,6 @@
 import { StringMap } from "./string-map";
 import type { State } from "./state";
-import { routerPrivateStateKey } from "./state";
+import { ROUTER_PRIVATE_STATE_KEY } from "./state";
 
 export interface IStateSaverCallback {
   (url: string, state: State): unknown;
@@ -14,12 +14,12 @@ export class RouteContext {
   /**
    * The current route state
    */
-  readonly #state: State;
+  private readonly _state: State;
 
   /**
    * The callback to save the current route state.
    */
-  readonly #stateSaverCb: IStateSaverCallback;
+  private readonly _stateSaverCb: IStateSaverCallback;
 
   /**
    * Exposes methods for retrieving information about the pathname segment
@@ -101,9 +101,9 @@ export class RouteContext {
    */
   constructor(state: State, saveStateFn: IStateSaverCallback) {
     const base = window?.location?.href ?? "https://example.com";
-    const url = new URL(state[routerPrivateStateKey].path, base);
+    const url = new URL(state[ROUTER_PRIVATE_STATE_KEY].path, base);
 
-    this.#stateSaverCb = saveStateFn;
+    this._stateSaverCb = saveStateFn;
     this.param = new StringMap();
     this.path = url.pathname + url.search + url.hash;
     this.pathname = url.pathname;
@@ -112,7 +112,7 @@ export class RouteContext {
     this.query = url.searchParams;
     this.handled = false;
     this.matched = "";
-    this.#state = state;
+    this._state = state;
   }
 
   /**
@@ -120,7 +120,7 @@ export class RouteContext {
    * @param {unknown} state The state object to save
    */
   public set state(state: unknown) {
-    this.#state.publicState = state;
+    this._state.publicState = state;
     this.saveState();
   }
 
@@ -130,7 +130,7 @@ export class RouteContext {
    * @return {unknown} The public state object
    */
   public get state(): unknown {
-    return this.#state.publicState;
+    return this._state.publicState;
   }
 
   /**
@@ -149,6 +149,6 @@ export class RouteContext {
    * @return {void} void
    */
   public saveState() {
-    this.#stateSaverCb(this.path, this.#state);
+    this._stateSaverCb(this.path, this._state);
   }
 }

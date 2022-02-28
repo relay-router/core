@@ -1,5 +1,5 @@
 import { RouteContext } from "./route-context";
-import { routerPrivateStateKey, State } from "./state";
+import { ROUTER_PRIVATE_STATE_KEY, State } from "./state";
 
 describe("RouteContext", () => {
   const dummyPath = "/path/to/nothing";
@@ -11,7 +11,7 @@ describe("RouteContext", () => {
 
   function createStateFromPath(path: string): State {
     return {
-      [routerPrivateStateKey]: {
+      [ROUTER_PRIVATE_STATE_KEY]: {
         path,
       },
     };
@@ -140,7 +140,7 @@ describe("RouteContext", () => {
 
     routeContext.state = { key: "value" };
 
-    expect(historyState?.[routerPrivateStateKey]?.path).toBe(
+    expect(historyState?.[ROUTER_PRIVATE_STATE_KEY]?.path).toBe(
       dummyPathWithQueryAndHash,
     );
   });

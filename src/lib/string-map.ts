@@ -9,7 +9,7 @@ interface StringRecord {
  * Exposes convenient methods for storing and retrieving values from the map.
  */
 export class StringMap {
-  readonly #internalMap: StringRecord;
+  private readonly _internalMap: StringRecord;
 
   /**
    * @constructor
@@ -17,7 +17,7 @@ export class StringMap {
    * names and strings or array of strings as values.
    */
   constructor(record?: Required<StringRecord>) {
-    this.#internalMap = record ?? {};
+    this._internalMap = record ?? {};
   }
 
   /**
@@ -39,20 +39,20 @@ export class StringMap {
    * @throws {RouterError} if the value isn't a string
    */
   public addStringToKey(key: string, value: string) {
-    const currentValue = this.#internalMap[key];
+    const currentValue = this._internalMap[key];
 
     if (currentValue === undefined) {
-      this.#internalMap[key] = value;
+      this._internalMap[key] = value;
       return;
     }
 
     if (typeof currentValue === "string") {
-      this.#internalMap[key] = [currentValue, value];
+      this._internalMap[key] = [currentValue, value];
       return;
     }
 
     if (Array.isArray(currentValue)) {
-      this.#internalMap[key] = [...currentValue, value];
+      this._internalMap[key] = [...currentValue, value];
       return;
     }
 
@@ -83,20 +83,20 @@ export class StringMap {
    * @throws {RouterError} if the value isn't an array of string
    */
   public addArrayToKey(key: string, array: string[]) {
-    const currentValue = this.#internalMap[key];
+    const currentValue = this._internalMap[key];
 
     if (currentValue === undefined) {
-      this.#internalMap[key] = array;
+      this._internalMap[key] = array;
       return;
     }
 
     if (typeof currentValue === "string") {
-      this.#internalMap[key] = [currentValue, ...array];
+      this._internalMap[key] = [currentValue, ...array];
       return;
     }
 
     if (Array.isArray(currentValue)) {
-      this.#internalMap[key] = [...currentValue, ...array];
+      this._internalMap[key] = [...currentValue, ...array];
       return;
     }
 
@@ -118,7 +118,7 @@ export class StringMap {
    * @return {void} void
    */
   public set(key: string, value: string | string[]) {
-    this.#internalMap[key] = value;
+    this._internalMap[key] = value;
   }
 
   /**
@@ -134,7 +134,7 @@ export class StringMap {
    * @return {void} void
    */
   public setString(key: string, value: string) {
-    this.#internalMap[key] = value;
+    this._internalMap[key] = value;
   }
 
   /**
@@ -150,7 +150,7 @@ export class StringMap {
    * @return {void} void
    */
   public setArray(key: string, value: string[]) {
-    this.#internalMap[key] = value;
+    this._internalMap[key] = value;
   }
 
   /**
@@ -163,7 +163,7 @@ export class StringMap {
    * The value associated with the key.
    */
   public get(key: string): string | string[] | null {
-    const value = this.#internalMap[key];
+    const value = this._internalMap[key];
 
     if (value !== undefined) {
       return value;
@@ -186,7 +186,7 @@ export class StringMap {
       return null;
     }
 
-    const value = this.#internalMap[key];
+    const value = this._internalMap[key];
 
     if (typeof value === "string") {
       return value;
@@ -207,7 +207,7 @@ export class StringMap {
   public getArray(key: string): string[] | null {
     if (!this.hasKey(key)) return null;
 
-    const value = this.#internalMap[key];
+    const value = this._internalMap[key];
 
     if (Array.isArray(value)) {
       return value;
@@ -255,7 +255,7 @@ export class StringMap {
    */
   public hasKey(key: string): boolean {
     return (
-      this.#internalMap[key] !== undefined && this.#internalMap[key] !== null
+      this._internalMap[key] !== undefined && this._internalMap[key] !== null
     );
   }
 
@@ -265,7 +265,7 @@ export class StringMap {
    * @yields {(string | string[])}
    */
   public *[Symbol.iterator]() {
-    for (const [, value] of Object.entries(this.#internalMap)) {
+    for (const [, value] of Object.entries(this._internalMap)) {
       yield value;
     }
   }
@@ -276,7 +276,7 @@ export class StringMap {
    * @yields {[string, string | string[]]}
    */
   public *entries() {
-    for (const keyValue of Object.entries(this.#internalMap)) {
+    for (const keyValue of Object.entries(this._internalMap)) {
       yield keyValue;
     }
   }
@@ -289,6 +289,6 @@ export class StringMap {
    * @return {void} void
    */
   public remove(key: string) {
-    delete this.#internalMap[key];
+    delete this._internalMap[key];
   }
 }

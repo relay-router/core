@@ -1,4 +1,4 @@
-import { State, routerPrivateStateKey } from "./state";
+import { State, ROUTER_PRIVATE_STATE_KEY } from "./state";
 
 describe("isValidNaviState", () => {
   test("will return false for null", () => {
@@ -9,24 +9,24 @@ describe("isValidNaviState", () => {
     expect(State.isValid({})).toBeFalsy();
   });
 
-  test(`will return false for objects with falsy ${routerPrivateStateKey}
+  test(`will return false for objects with falsy ${ROUTER_PRIVATE_STATE_KEY}
   property`, () => {
-    expect(State.isValid({ [routerPrivateStateKey]: undefined })).toBeFalsy();
+    expect(State.isValid({ [ROUTER_PRIVATE_STATE_KEY]: undefined })).toBeFalsy();
   });
 
-  test(`will return false for objects with a ${routerPrivateStateKey}
+  test(`will return false for objects with a ${ROUTER_PRIVATE_STATE_KEY}
   property but no path property`, () => {
-    expect(State.isValid({ [routerPrivateStateKey]: {} })).toBeFalsy();
+    expect(State.isValid({ [ROUTER_PRIVATE_STATE_KEY]: {} })).toBeFalsy();
   });
 
-  test(`will return true for objects with a ${routerPrivateStateKey}
+  test(`will return true for objects with a ${ROUTER_PRIVATE_STATE_KEY}
   property with path property but not a string type`, () => {
-    expect(State.isValid({ [routerPrivateStateKey]: { path: 1 } })).toBeFalsy();
+    expect(State.isValid({ [ROUTER_PRIVATE_STATE_KEY]: { path: 1 } })).toBeFalsy();
   });
 
   test(`will return true for valid object`, () => {
     expect(
-      State.isValid({ [routerPrivateStateKey]: { path: "/path" } }),
+      State.isValid({ [ROUTER_PRIVATE_STATE_KEY]: { path: "/path" } }),
     ).toBeTruthy();
   });
 });
@@ -39,7 +39,7 @@ describe("State", () => {
   });
 
   test("will return the path", () => {
-    const state = new State({ [routerPrivateStateKey]: { path: "/path" } });
-    expect(state[routerPrivateStateKey].path).toBe("/path");
+    const state = new State({ [ROUTER_PRIVATE_STATE_KEY]: { path: "/path" } });
+    expect(state[ROUTER_PRIVATE_STATE_KEY].path).toBe("/path");
   });
 });

@@ -1,4 +1,4 @@
-import { routerPrivateStateKey, State } from "./state";
+import { ROUTER_PRIVATE_STATE_KEY, State } from "./state";
 
 /**
  * Strings representing the different types of history events.
@@ -56,7 +56,7 @@ export class BrowserHistory implements History {
         const type = "pop";
         const event: HistoryEvent = {
           type,
-          path: state[routerPrivateStateKey].path,
+          path: state[ROUTER_PRIVATE_STATE_KEY].path,
           state,
         };
         this.notifyListeners(type, event);
@@ -64,27 +64,27 @@ export class BrowserHistory implements History {
     });
   }
 
-  push(path: string, state: State) {
+  public push(path: string, state: State) {
     window.history.pushState(state, "", path);
     const type = "push";
     this.notifyListeners(type, { type, path, state });
   }
 
-  replace(path: string, state: State) {
+  public replace(path: string, state: State) {
     window.history.replaceState(state, "", path);
     const type = "replace";
     this.notifyListeners(type, { type, path, state });
   }
 
-  back() {
+  public back() {
     window.history.back();
   }
 
-  forward() {
+  public forward() {
     window.history.forward();
   }
 
-  go(delta: number) {
+  public go(delta: number) {
     window.history.go(delta);
   }
 
@@ -105,18 +105,18 @@ export class BrowserHistory implements History {
     }
   }
 
-  subscribe(typeOrListener: HistoryEventType | HistoryEventListener,
+  public subscribe(typeOrListener: HistoryEventType | HistoryEventListener,
             cb?: HistoryEventListener): UnsubscribeCallback {
     if (typeOrListener instanceof Function)
-      return this.#subscribeToAllEvents(typeOrListener);
+      return this.subscribeToAllEvents(typeOrListener);
 
     if (cb instanceof Function)
-      return this.#subscribeToEvent(typeOrListener, cb);
+      return this.subscribeToEvent(typeOrListener, cb);
 
     throw new Error("Invalid arguments");
   }
 
-  #subscribeToEvent(eventType: HistoryEventType,
+  private subscribeToEvent(eventType: HistoryEventType,
                     cb: HistoryEventListener): UnsubscribeCallback {
     let listeners = this.#listeners[eventType];
 
@@ -126,10 +126,10 @@ export class BrowserHistory implements History {
 
     listeners.add(cb);
 
-    return this.#createUnsubscribeCallback(cb, listeners);
+    return this.createUnsubscribeCallback(cb, listeners);
   }
 
-  #subscribeToAllEvents(cb: HistoryEventListener): UnsubscribeCallback {
+  private subscribeToAllEvents(cb: HistoryEventListener): UnsubscribeCallback {
     let listeners = this.#listeners["all"];
 
     if (listeners === undefined)
@@ -137,10 +137,10 @@ export class BrowserHistory implements History {
 
     listeners.add(cb);
 
-    return this.#createUnsubscribeCallback(cb, listeners);
+    return this.createUnsubscribeCallback(cb, listeners);
   }
 
-  #createUnsubscribeCallback(subToRemove: HistoryEventListener,
+  private createUnsubscribeCallback(subToRemove: HistoryEventListener,
                              listeners: Set<HistoryEventListener>): UnsubscribeCallback {
     const unsub = () => {
       listeners.delete(subToRemove);
@@ -152,19 +152,19 @@ export class BrowserHistory implements History {
 
 export class HashHistory extends BrowserHistory {
   public override push(path: string, state: State) {
-    path = "#" + path;
+    path = "/#" + path;
     super.push(path, state);
   }
 
   public override replace(path: string, state: State) {
-    path = "#" + path;
+    path = "/#" + path;
     super.replace(path, state);
   }
 
   protected override notifyListeners(type: HistoryEventType,
                                      event: HistoryEvent) {
-    const newPath = event.path.replace(/^#/, "");
-    event.state[routerPrivateStateKey].path = newPath;
+    const newPath = event.path.replace(/^\/#/, "");
+    event.state[ROUTER_PRIVATE_STATE_KEY].path = newPath;
     event.path = newPath;
     super.notifyListeners(type, event);
   }
