@@ -202,11 +202,15 @@ export class Router {
    *
    * @param absolutePath should be an absolute path
    *
-   * @throws {@link RouterError} If called on a nested router.
+   * @throws {@link RouterError} If the router is not started or the path is not absolute.
    */
   public navigateTo(absolutePath: string) {
     if (!this._started)
       throw new RouterError("Router has not been started yet.");
+
+    if (!absolutePath.startsWith("/"))
+      throw new RouterError("Path must be absolute. " +
+                            "Relative paths are not supported.");
 
     const state = State.fromPrivateState({ path: absolutePath });
     this._history.push(absolutePath, state);
