@@ -2,7 +2,6 @@ import { Router } from "./router";
 import { ROUTER_PRIVATE_STATE_KEY } from "./state";
 import { BrowserHistory } from "./history";
 
-
 describe("Router", () => {
   const dummyPathWithQueryAndHash = "/path?query=value#hash";
   const history = new BrowserHistory();
@@ -13,50 +12,44 @@ describe("Router", () => {
     jest.spyOn(history, "replace");
   });
 
-  beforeEach(()=>{
+  beforeEach(() => {
     router.start();
-  })
+  });
 
   afterEach(() => {
     router.reset();
     jest.clearAllMocks();
   });
 
-  test("navigateTo will cause the router to call the matching route handler",
-       () => {
-         const mockedHandler = jest.fn();
-         router.route("/path", mockedHandler);
+  test("navigateTo will cause the router to call the matching route handler", () => {
+    const mockedHandler = jest.fn();
+    router.route("/path", mockedHandler);
 
-         router.navigateTo(dummyPathWithQueryAndHash);
+    router.navigateTo(dummyPathWithQueryAndHash);
 
-         expect(mockedHandler).toHaveBeenCalled();
-       });
+    expect(mockedHandler).toHaveBeenCalled();
+  });
 
-  test(
-    "navigateTo will cause the router to call pushState  on the history object",
-    () => {
-      router.route("/path", jest.fn());
+  test("navigateTo will cause the router to call pushState  on the history object", () => {
+    router.route("/path", jest.fn());
 
-      router.navigateTo(dummyPathWithQueryAndHash);
+    router.navigateTo(dummyPathWithQueryAndHash);
 
-      expect(history.push).toHaveBeenCalledTimes(1);
-    });
+    expect(history.push).toHaveBeenCalledTimes(1);
+  });
 
   test(
     "navigateTo will cause the router to call pushState " +
-    "on the history object with the correct path",
+      "on the history object with the correct path",
     () => {
       router.route("/path", jest.fn());
 
       router.navigateTo("/path");
 
-      expect(history.push).toHaveBeenCalledWith(
-        "/path",
-        {
-          [ROUTER_PRIVATE_STATE_KEY]: { path: "/path" },
-          publicState: undefined,
-        },
-      );
+      expect(history.push).toHaveBeenCalledWith("/path", {
+        [ROUTER_PRIVATE_STATE_KEY]: { path: "/path" },
+        publicState: undefined,
+      });
     },
   );
 
@@ -117,9 +110,12 @@ describe("Router", () => {
     expect(mockedHandler).toHaveBeenCalled();
   });
 
-  test("creating a new router and starting it while a started router " +
-       "already exists will throw", () => {
-    const router2 = new Router(history);
-    expect(() => router2.start()).toThrow();
-  });
+  test(
+    "creating a new router and starting it while a started router " +
+      "already exists will throw",
+    () => {
+      const router2 = new Router(history);
+      expect(() => router2.start()).toThrow();
+    },
+  );
 });

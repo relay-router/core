@@ -48,7 +48,10 @@ export class Route {
    * @param path The path to match against.
    * @param context The context to use for the matching.
    */
-  private parseParamsAndStoreToContext(path: string, context: RouteContext): void {
+  private parseParamsAndStoreToContext(
+    path: string,
+    context: RouteContext,
+  ): void {
     const matches = this._regex.exec(path);
 
     if (matches) {

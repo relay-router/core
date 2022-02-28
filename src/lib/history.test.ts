@@ -69,7 +69,7 @@ describe("BrowserHistory", () => {
   });
 });
 
-describe("HashHistory", ()=>{
+describe("HashHistory", () => {
   test("push should call history.pushState with a path prefixed with /#", () => {
     const path = "/";
     const hashHistory = new HashHistory();
@@ -89,4 +89,4 @@ describe("HashHistory", ()=>{
 
     expect(history.replaceState).toHaveBeenCalledWith(state, "", `/#${path}`);
   });
-})
+});

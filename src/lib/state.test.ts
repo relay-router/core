@@ -11,7 +11,9 @@ describe("isValidNaviState", () => {
 
   test(`will return false for objects with falsy ${ROUTER_PRIVATE_STATE_KEY}
   property`, () => {
-    expect(State.isValid({ [ROUTER_PRIVATE_STATE_KEY]: undefined })).toBeFalsy();
+    expect(
+      State.isValid({ [ROUTER_PRIVATE_STATE_KEY]: undefined }),
+    ).toBeFalsy();
   });
 
   test(`will return false for objects with a ${ROUTER_PRIVATE_STATE_KEY}
@@ -21,7 +23,9 @@ describe("isValidNaviState", () => {
 
   test(`will return true for objects with a ${ROUTER_PRIVATE_STATE_KEY}
   property with path property but not a string type`, () => {
-    expect(State.isValid({ [ROUTER_PRIVATE_STATE_KEY]: { path: 1 } })).toBeFalsy();
+    expect(
+      State.isValid({ [ROUTER_PRIVATE_STATE_KEY]: { path: 1 } }),
+    ).toBeFalsy();
   });
 
   test(`will return true for valid object`, () => {

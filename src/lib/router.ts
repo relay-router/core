@@ -120,7 +120,8 @@ export class Router {
    *
    * @internal
    */
-  private static _routeMatchingOptions: RouteMatchingOptions = this._requiredOptions;
+  private static _routeMatchingOptions: RouteMatchingOptions =
+    this._requiredOptions;
 
   /**
    * Configures the router with the given options.
@@ -225,7 +226,6 @@ export class Router {
     if (!this._started)
       throw new RouterError("Router has not been _started yet.");
 
-
     const state = State.fromPrivateState({ path: absolutePath });
     this._history.push(absolutePath, state);
 
@@ -251,7 +251,7 @@ export class Router {
     if (!this._history)
       throw new RouterError(
         "Navigation using states is not supported on routers without a history object. " +
-        "Use the parent router to navigate with states.",
+          "Use the parent router to navigate with states.",
       );
 
     this._context = new RouteContext(state, this._saveState);
@@ -322,9 +322,8 @@ export class Router {
     if (Router._globalRouter)
       throw new RouterError(
         "A Global Router has already been _started. " +
-        "Use Router.global to access it.",
+          "Use Router.global to access it.",
       );
-
 
     if (this._started) {
       throw new RouterError("Router is already _started");
@@ -371,8 +370,7 @@ export class Router {
     window.removeEventListener("click", Router.clickHandler);
     this._started = false;
 
-    if (Router._globalRouter === this)
-      Router._globalRouter = undefined;
+    if (Router._globalRouter === this) Router._globalRouter = undefined;
   }
 
   /**
@@ -414,7 +412,7 @@ export class Router {
     if (
       event.target instanceof HTMLAnchorElement &&
       (event.target.hasAttribute("relay-link") ||
-       event.target.hasAttribute("data-relay-link"))
+        event.target.hasAttribute("data-relay-link"))
     ) {
       Router._globalRouter.navigateTo(event.target.href);
       event.preventDefault();

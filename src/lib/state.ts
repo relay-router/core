@@ -6,7 +6,8 @@ import { RouterError } from "./router-error";
  * const routerState = history.state[ROUTER_PRIVATE_STATE_KEY];
  * ```
  */
-export const ROUTER_PRIVATE_STATE_KEY = "__RouterPrivateStateKey_DO_NOT_TAMPER__";
+export const ROUTER_PRIVATE_STATE_KEY =
+  "__RouterPrivateStateKey_DO_NOT_TAMPER__";
 
 /**
  * The structure of the Router's private state
