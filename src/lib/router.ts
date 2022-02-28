@@ -188,7 +188,7 @@ export class Router {
       Router.#globalRouter = this;
 
 
-      this.#history.on("pop", (event) => {
+      this.#history.subscribe("pop", (event) => {
         this.navigateWithState(event.state);
       });
     }

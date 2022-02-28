@@ -8,7 +8,7 @@
     "test": "npx jest",
     "lint": "npx eslint .",
     "check": "npx tsc --noEmit && npm run lint",
-    "clean": "rm -r ./dist",
+    "clean": "rmdir -r ./dist",
     "format": "npx prettier . --write",
     "build": "npm run clean && npm run test && npm run format && npm run lint && npx tsc -p ./tsconfig.build.json",
     "doc": "npx typedoc ."
