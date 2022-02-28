@@ -31,12 +31,10 @@ export class StringMap {
    *
    * If an array of strings is associated with the key, append the string.
    *
-   * @param {string} key the key to associate the new value with.
-   * @param {string} value the value to associate the key with.
+   * @param key the key to associate the new value with.
+   * @param value the value to associate the key with.
    *
-   * @return {void} void
-   *
-   * @throws {RouterError} if the value isn't a string
+   * @throws {@link RouterError} if the value isn't a string
    */
   public addStringToKey(key: string, value: string) {
     const currentValue = this._internalMap[key];
@@ -72,15 +70,13 @@ export class StringMap {
    * the value will be an array containing both the elements
    * of the previous and new arrays.
    *
-   * Use {@link StringMap.set}, {@link StringMap.setString},
-   * or {@link StringMap.setArray} to replace the value.
+   * Use {@link StringMap#set}, {@link StringMap#setString},
+   * or {@link StringMap#setArray} to replace the value.
    *
    * @param {string} key the key to associate the new value with.
    * @param {string[]} array the array to associate the key with.
    *
-   * @return {void} void
-   *
-   * @throws {RouterError} if the value isn't an array of string
+   * @throws {@link RouterError} if the value isn't an array of string
    */
   public addArrayToKey(key: string, array: string[]) {
     const currentValue = this._internalMap[key];
@@ -109,13 +105,11 @@ export class StringMap {
    * Sets the value of a key in the map.
    *
    * NOTE: This will replace the previous value.
-   * Use {@link StringMap.addStringToKey}` or {@link StringMap.addArrayToKey}
+   * Use {@link StringMap#addStringToKey}` or {@link StringMap#addArrayToKey}
    * if you want to combine the previous and new values
    *
-   * @param key {string} the key to associate the new value with.
-   * @param value {string | string[]} the value to associate the key with.
-   *
-   * @return {void} void
+   * @param key the key to associate the new value with.
+   * @param value the value to associate the key with.
    */
   public set(key: string, value: string | string[]) {
     this._internalMap[key] = value;
@@ -125,13 +119,11 @@ export class StringMap {
    * Sets the value of a key in the map.
    *
    * NOTE: This will replace the previous value.
-   * Use {@link StringMap.addStringToKey}` or {@link StringMap.addArrayToKey}
+   * Use {@link StringMap#addStringToKey}` or {@link StringMap#addArrayToKey}
    * if you want to combine the previous and new values
    *
-   * @param {string} key the key to associate the new value with.
-   * @param {string} value the string to associate the key with.
-   *
-   * @return {void} void
+   * @param key the key to associate the new value with.
+   * @param value the string to associate the key with.
    */
   public setString(key: string, value: string) {
     this._internalMap[key] = value;
@@ -141,13 +133,11 @@ export class StringMap {
    * Sets an array as the value of a key in the map.
    *
    * NOTE: This will replace the previous value.
-   * Use {@link StringMap.addStringToKey}` or {@link StringMap.addArrayToKey}
+   * Use {@link StringMap#addStringToKey}` or {@link StringMap#addArrayToKey}
    * if you want to combine the previous and new values
    *
-   * @param {string} key the key to associate the new value with.
-   * @param {string[]} value the array to associate the key with.
-   *
-   * @return {void} void
+   * @param key the key to associate the new value with.
+   * @param value the array to associate the key with.
    */
   public setArray(key: string, value: string[]) {
     this._internalMap[key] = value;
@@ -157,9 +147,8 @@ export class StringMap {
    * Returns the value associated with the key.
    * If the key is not found, returns null.
    *
-   * @param {string} key the key to look up.
+   * @param key the key to look up.
    *
-   * @return {(string | string[] | null)}
    * The value associated with the key.
    */
   public get(key: string): string | string[] | null {
@@ -175,11 +164,9 @@ export class StringMap {
   /**
    * A function for retrieving a string value.
    *
-   * @param {string} key the key for the value.
+   * @param key the key for the value.
    *
-   * @return {(string | null)}
-   * `string` if the value exists.
-   * `null` if the key doesn't exist.
+   * @return A `string` if the value exists. `null` if the key doesn't exist.
    */
   public getString(key: string): string | null {
     if (!this.hasKey(key)) {
@@ -198,10 +185,9 @@ export class StringMap {
   /**
    * A function for retrieving an array of strings.
    *
-   * @param {string} key the key for the value.
+   * @param key the key for the value.
    *
-   * @return {(string[] | null)}
-   * `string` if the value exists.
+   * @return `string` if the value exists.
    * `null` if the key isn't an array or doesn't exist.
    */
   public getArray(key: string): string[] | null {
@@ -221,10 +207,9 @@ export class StringMap {
    * and converting to a number if possible.
    * It uses the unary plus operator to convert the value.
    *
-   * @param {string} key the key for the value.
+   * @param key the key for the value.
    *
-   * @return {(number | null)}
-   * `number` if the value can be converted to a number.
+   * @return `number` if the value can be converted to a number.
    * `null` if the value can't be converted to a number
    * or if the key doesn't exist.
    */
@@ -249,9 +234,9 @@ export class StringMap {
   /**
    * Checks if the key exists in the map.
    *
-   * @param {string} key the key to check.
+   * @param key the key to check.
    *
-   * @return {boolean} `true` if the key exists. `false` otherwise.
+   * @return `true` if the key exists. `false` otherwise.
    */
   public hasKey(key: string): boolean {
     return (
@@ -284,9 +269,7 @@ export class StringMap {
   /**
    * Removes the key, and it's value from the map.
    *
-   * @param {string} key the key to remove.
-   *
-   * @return {void} void
+   * @param key the key to remove.
    */
   public remove(key: string) {
     delete this._internalMap[key];

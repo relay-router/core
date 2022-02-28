@@ -2,13 +2,30 @@ import { StringMap } from "./string-map";
 import type { State } from "./state";
 import { ROUTER_PRIVATE_STATE_KEY } from "./state";
 
-export interface IStateSaverCallback {
-  (url: string, state: State): unknown;
+/**
+ * An interface that describes the second parameter of the RouteContext constructor.
+ */
+export interface StateSaverCallback {
+  (url: string, state: State): void;
 }
 
 /**
- * Exposes properties and methods for retrieving
- * and modifying the current route context.
+ * Exposes properties and methods for retrieving and modifying the current route context.
+ * This is passed as the first argument of the callbacks registered using {@link Router#route}.
+ *
+ * @example
+ * ```typescript
+ * const router = new Router(new BrowserHistory());
+ *
+ * router.route("/", (context) => {
+ *
+ *   // the first argument in this callback is the RouteContext instance
+ *   // retrieve information about the current route
+ *
+ *   const userId = context.params.getString("userId");
+ * });
+ *
+ * ```
  */
 export class RouteContext {
   /**
@@ -19,13 +36,11 @@ export class RouteContext {
   /**
    * The callback to save the current route state.
    */
-  private readonly _stateSaverCb: IStateSaverCallback;
+  private readonly _stateSaverCb: StateSaverCallback;
 
   /**
-   * Exposes methods for retrieving information about the pathname segment
-   *
-   * @type {StringMap}
-   * @readonly
+   * Exposes methods for retrieving information about the pathname segment.
+   * It is an instance of {@link StringMap}
    */
   public readonly param: StringMap;
 
@@ -33,40 +48,26 @@ export class RouteContext {
    * The URL.searchParams object parsed from the url
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/URL/searchParams
-   * @type {URLSearchParams}
-   * @readonly
    */
   public readonly query: URLSearchParams;
 
   /**
    * The full path (pathname + query string + hash)
-   *
-   * @readonly
-   * @type {string}
    */
   public readonly path: string;
 
   /**
    * The pathname segment (includes the leading forward slash ('/'))
-   *
-   * @readonly
-   * @type {string}
    */
   public readonly pathname: string;
 
   /**
    * The query string segment (includes the leading question mark ('?'))
-   *
-   * @readonly
-   * @type {string}
    */
   public readonly queryString: string;
 
   /**
-   * @description The hash segment (includes the leading hash symbol ('#'))
-   *
-   * @readonly
-   * @type {string}
+   * The hash segment (includes the leading hash symbol ('#'))
    */
   public readonly hash: string;
 
@@ -77,8 +78,6 @@ export class RouteContext {
    * You normally should not set this flag manually.
    * It is automatically set to false by the router when a handler calls
    * `next` function passed as the second argument.
-   *
-   * @type {boolean}
    */
   public handled: boolean;
 
@@ -87,19 +86,14 @@ export class RouteContext {
    * Empty string if the pathname hasn't been matched yet.
    * You should not set this property manually.
    * It is populated by the router.
-   *
-   * @type {(string | undefined)}
    */
   public matched: string;
 
   /**
    * Constructs a new RouteContext instance from the given state
    * and a callback when saving the state.
-   *
-   * @param {State} state The state object retrieved from the history, if any.
-   * @param {IStateSaverCallback} saveStateFn The function to call when saving state
    */
-  constructor(state: State, saveStateFn: IStateSaverCallback) {
+  constructor(state: State, saveStateFn: StateSaverCallback) {
     const base = window?.location?.href ?? "https://example.com";
     const url = new URL(state[ROUTER_PRIVATE_STATE_KEY].path, base);
 
@@ -116,8 +110,7 @@ export class RouteContext {
   }
 
   /**
-   * Saves the state object as the public state
-   * @param {unknown} state The state object to save
+   * Saves the state object as the public state of the context.
    */
   public set state(state: unknown) {
     this._state.publicState = state;
@@ -126,8 +119,6 @@ export class RouteContext {
 
   /**
    * Retrieve the public state object
-   *
-   * @return {unknown} The public state object
    */
   public get state(): unknown {
     return this._state.publicState;
@@ -135,8 +126,6 @@ export class RouteContext {
 
   /**
    * Getter property for unmatched portions of the path.
-   *
-   * @return {string} the unmatched portion of the path
    */
   public get unmatched(): string {
     return this.path.replace(this.matched, "");
@@ -145,10 +134,8 @@ export class RouteContext {
   /**
    * Saves the state to the history object. This method is called automatically
    * when the state is changed.
-   *
-   * @return {void} void
    */
-  public saveState() {
+  public saveState(): void {
     this._stateSaverCb(this.path, this._state);
   }
 }

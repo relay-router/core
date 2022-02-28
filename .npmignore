@@ -2,3 +2,4 @@ src
 *.config.js
 tsconfig.base.json
 .*rc.js
+docs

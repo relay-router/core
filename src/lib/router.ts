@@ -1,4 +1,4 @@
-import { type IStateSaverCallback, RouteContext } from "./route-context";
+import { type StateSaverCallback, RouteContext } from "./route-context";
 import { Route } from "./route";
 import type {
   ParseOptions,
@@ -9,90 +9,70 @@ import { State } from "./state";
 import { RouterError } from "./router-error";
 import type { History } from "./history";
 
+/**
+ * Describes the shape of the options passed to the second argument of the
+ * {@link Router#constructor}.
+ *
+ * @internal
+ */
 export type RouterOptions = {
   /**
-   * Flag to signal the router to bind a handler
-   * This will allow the router to react when the user clicks the back button.
-   *
-   * @type {boolean}
-   *
-   * @default true
-   */
-  bindPopState?: boolean;
-
-  /**
-   * Flag to signal the router to bind a handler
-   * ({@link clickHandler}) to the click events on the `window` object.
-   * This will allow the router to react when the user clicks
-   * an anchor (`<a></a>`) element.
-   *
-   * @type {boolean}
-   * @default true
-   */
-  bindClick?: boolean;
-
-  /**
    * Flag to signal the router to handle the initial navigation when the page loads.
    *
-   * @type {boolean}
    * @default true
    */
-  initialDispatch?: boolean;
+  navigateOnLoad?: boolean;
 
   /**
-   * Flag to signal the router to handle the initial navigation when the page loads.
+   * An option to override the attribute which be used as a tag
+   * to identify which anchor elements to navigate to.
    *
-   * @type {boolean}
-   * @default false
+   * If unspecified, the router will look for the `data-relay-link` or `relay-link`
+   * attribute.
    */
-  useHash?: boolean;
+  anchorAttribute?: string;
 };
-//
-// const defaultOptions: RouterOptions = {
-//   bindPopState: true,
-//   bindClick: true,
-//   initialDispatch: true,
-//   useHash: false,
-// };
 
 /**
  * A helper type for configuring path-to-regexp options.
+ *
+ * @internal
  */
 export type RouteMatchingOptions = ParseOptions &
   TokensToRegexpOptions &
   RegexpToFunctionOptions;
 
+/**
+ * A helper type that describes the shape of the handlers passed to the
+ * {@link Router#route} method.
+ */
 export interface RouteHandler {
   (context: RouteContext, next: () => void): void;
 }
 
-interface INestedRouterMiddleware extends RouteHandler {
+/**
+ * A helper type that describes the object returned by
+ * {@link Router#createNested} static method.
+ */
+interface NestedRouterMiddleware extends RouteHandler {
   route: Router["route"];
 }
 
-interface IRouteHandlerAdder {
+/**
+ * A helper type that describes the object returned by
+ * {@link Router#route} method.
+ */
+interface RouteHandlerAdder {
   /**
    * Adds more handlers to the end of the chain.
    *
-   * @param handlers
+   * @param handlers the handlers to be added.
    */
-  add(...handlers: RouteHandler[]): IRouteHandlerAdder;
+  add(...handlers: RouteHandler[]): RouteHandlerAdder;
 }
 
 /**
- * The class responsible for in-browser routing to the correct handler.
- *
- * The navigation is done using a series of steps:
- * 1. The {@link Router.navigateTo} method is called with an absolute path,
- *    which creates a {@link State} instance with the path.
- *    `navigateTo` will call `pushState` on the history object
- *    with the state instance and absolute path. Next, it will call
- *    {@link Router.#navigateWithState} passed with the state instance.
- * 2. {@link Router.#navigateWithState} will create a {@link RouteContext}
- *    instance from the state instance.
- *    It will call {@link Route.navigateWithContext} with the context instance.
- * 3. {@link Route.navigateWithContext} will find a matching route and call
- *    its handler with the context instance.
+ * The class responsible for routing and finding match to the correct handler.
  */
 export class Router {
   /**
@@ -130,6 +110,8 @@ export class Router {
    * Note that some options will not override Router's defaults as they are flags
    * that are needed to be set to specific value for the Router to work properly.
    *
+   * @internal
+   *
    * @param options The options to configure the router with.
    */
   public static configureRouteMatching(options: RouteMatchingOptions): void {
@@ -159,7 +141,7 @@ export class Router {
   private readonly _history: History;
 
   /**
-   * @param {History} history The history API to use for the router.
+   * @param history The history API to use for the router.
    */
   constructor(history: History) {
     this._started = false;
@@ -179,12 +161,12 @@ export class Router {
    * @param pattern The route pattern.
    * @param handlers The route handlers.
    *
-   * @returns A handler-adder for chaining calls.
+   * @returns A handler-adder object for chaining calls.
    */
   public route(
     pattern: string,
     ...handlers: RouteHandler[]
-  ): IRouteHandlerAdder {
+  ): RouteHandlerAdder {
     const route = new Route(
       Router.transformPathPattern(pattern),
       handlers,
@@ -215,16 +197,16 @@ export class Router {
   /**
    * Navigates to the given path, it will create a new {@link State} instance with the given path.
    * It will then call `pushState` on the history object with the state and path.
-   * Lastly, it will delegate the next steps to {@link Router.#navigateWithState}
+   * Lastly, it will delegate the next steps to {@link Router#navigateWithState}
    * by calling it with the state instance.
    *
    * @param absolutePath should be an absolute path
    *
-   * @throws {RouterError} If called on a nested router.
+   * @throws {@link RouterError} If called on a nested router.
    */
   public navigateTo(absolutePath: string) {
     if (!this._started)
-      throw new RouterError("Router has not been _started yet.");
+      throw new RouterError("Router has not been started yet.");
 
     const state = State.fromPrivateState({ path: absolutePath });
     this._history.push(absolutePath, state);
@@ -243,17 +225,11 @@ export class Router {
    *
    * @param state The state to restore the context from.
    *
-   * @throw {Error} If called on a nested router.
+   * @throw {@link RouterError} If called on a nested router.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/popstate_event
    */
   private navigateWithState(state: State) {
-    if (!this._history)
-      throw new RouterError(
-        "Navigation using states is not supported on routers without a history object. " +
-          "Use the parent router to navigate with states.",
-      );
-
     this._context = new RouteContext(state, this._saveState);
     this.navigateWithContext(this._context);
   }
@@ -265,7 +241,7 @@ export class Router {
    *
    * @param context
    *
-   * @throws {Error} If no {@link RouteContext.handled} is still false
+   * @throws {@link RouterError} If {@link RouteContext#handled} is still false
    * after calling all the handlers.
    */
   private navigateWithContext(context: RouteContext) {
@@ -290,7 +266,7 @@ export class Router {
    * @param state
    * @param url
    */
-  private readonly _saveState: IStateSaverCallback = (
+  private readonly _saveState: StateSaverCallback = (
     url: string,
     state: State,
   ) => {
@@ -315,18 +291,18 @@ export class Router {
    * Start the router with the given options and sets itself as the global router,
    * binds its event listeners to the environment.
    *
-   * @throws {Error} If Navi is already _started or if environment is not supported
+   * @throws {@link RouterError} If Navi is already started or if environment is not supported
    * (e.g. no history API).
    */
   public start() {
     if (Router._globalRouter)
       throw new RouterError(
-        "A Global Router has already been _started. " +
+        "A Global Router has already been started. " +
           "Use Router.global to access it.",
       );
 
     if (this._started) {
-      throw new RouterError("Router is already _started");
+      throw new RouterError("Router is already started");
     }
 
     if (!window) {
@@ -354,17 +330,17 @@ export class Router {
 
   /**
    * Will call stop on the global router and remove all event listeners.
-   * Will do nothing if the router has not _started.
+   * Will do nothing if the router has not started.
    */
-  public static stop() {
+  public static stop(): void {
     Router._globalRouter?.stop();
   }
 
   /**
    * Will stop the router and remove all event listeners and removes itself as the global router,
-   * does nothing if the router has not _started.
+   * does nothing if the router has not started.
    */
-  public stop() {
+  public stop(): void {
     if (!this._started) return;
 
     window.removeEventListener("click", Router.clickHandler);
@@ -376,7 +352,7 @@ export class Router {
   /**
    * Will stop the router and remove all routes and handlers registered.
    */
-  public reset() {
+  public reset(): void {
     this._routes.length = 0;
     this.stop();
   }
@@ -384,7 +360,7 @@ export class Router {
   /**
    * Create a middleware with a router instance to be used as a nested router.
    */
-  public static createNested(): INestedRouterMiddleware {
+  public static createNested(): NestedRouterMiddleware {
     const miniRouter = { _routes: [] as Route[] };
 
     const middleware = (context: RouteContext, next: () => void) => {
@@ -399,11 +375,9 @@ export class Router {
 
   /**
    * The default implementation for handling the click events.
-   * It will look for {@link HTMLAnchorElement} with a `data-relay-link` or `relay-link` attribute.
+   * It will look for an anchor element with a `data-relay-link` or `relay-link` attribute.
    *
-   * @internal
-   *
-   * @param {MouseEvent} event
+   * @param event
    */
   private static clickHandler(event: MouseEvent) {
     if (!Router._globalRouter?._started)

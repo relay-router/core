@@ -2,3 +2,4 @@ node_modules
 .*rc.js
 *.config.js
 dist
+docs

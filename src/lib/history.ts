@@ -25,35 +25,91 @@ type ListenerMap<Types extends string> = {
 
 /**
  * A callback used to unsubscribe from history events returned by
+ * {@link History#subscribe}.
  */
 export type UnsubscribeCallback = {
   (): void;
   unsubscribe: UnsubscribeCallback;
 };
 
+/**
+ * A common interface for history implementations.
+ */
 export interface History {
+
+  /**
+   * Push a new entry to the history stack with the given path and state.
+   *
+   * @param path
+   * @param state
+   */
   push(path: string, state?: unknown): void;
 
+  /**
+   * Replace the path and the state of the current entry in the history stack.
+   *
+   * @param path
+   * @param state
+   */
   replace(path: string, state?: unknown): void;
 
+  /**
+   * Go back to the previous entry in the history stack.
+   * Does nothing if there is no previous entry.
+   * Equivalent to calling `history.go(-1)`.
+   */
   back(): void;
 
+  /**
+   * Go forward to the next entry in the history stack.
+   * Does nothing if there is no next entry.
+   * Equivalent to calling `history.go(1)`.
+   */
   forward(): void;
 
+  /**
+   * The position in the history to which you want to move, relative to the current page.
+   * A negative value moves backwards, a positive value moves forwards.
+   * So, for example,`history.go(2)` moves forward two pages and `history.go(-2)` moves back two pages.
+   * If no value is passed or if delta equals 0, it has the same result as calling `location.reload()`.
+   * @param delta
+   */
   go(delta: number): void;
 
+  /**
+   * Subscribe to all history events.
+   * @param subscriber
+   */
   subscribe(subscriber: HistoryEventListener): UnsubscribeCallback;
+
+  /**
+   * Subscribe to history events of the given type.
+   * @param type
+   * @param subscriber
+   */
   subscribe(
     type: HistoryEventType,
     subscriber: HistoryEventListener,
   ): UnsubscribeCallback;
 }
 
+/**
+ * A history implementation that uses the browser's history API.
+ * This class is essentially a wrapper around the browser's history API
+ * that conforms to the {@link History} interface used by the router.
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/History HTML5 History API
+ */
 export class BrowserHistory implements History {
-  readonly #listeners: ListenerMap<HistoryEventType | "all">;
+  /**
+   * Stores all the history event listeners.
+   *
+   */
+  private readonly _listeners: ListenerMap<HistoryEventType | "all">;
 
   constructor() {
-    this.#listeners = {};
+    this._listeners = {};
+
     window.addEventListener("popstate", (event) => {
       const state = event.state;
       if (State.isValid(state)) {
@@ -93,14 +149,14 @@ export class BrowserHistory implements History {
   }
 
   protected notifyListeners(type: HistoryEventType, event: HistoryEvent) {
-    const listeners = this.#listeners[type];
+    const listeners = this._listeners[type];
     if (listeners) {
       for (const listener of listeners) {
         listener(event);
       }
     }
 
-    const allListeners = this.#listeners["all"];
+    const allListeners = this._listeners["all"];
 
     if (allListeners) {
       for (const listener of allListeners) {
@@ -126,10 +182,10 @@ export class BrowserHistory implements History {
     eventType: HistoryEventType,
     cb: HistoryEventListener,
   ): UnsubscribeCallback {
-    let listeners = this.#listeners[eventType];
+    let listeners = this._listeners[eventType];
 
     if (listeners === undefined)
-      listeners = this.#listeners[eventType] = new Set<HistoryEventListener>();
+      listeners = this._listeners[eventType] = new Set<HistoryEventListener>();
 
     listeners.add(cb);
 
@@ -137,10 +193,10 @@ export class BrowserHistory implements History {
   }
 
   private subscribeToAllEvents(cb: HistoryEventListener): UnsubscribeCallback {
-    let listeners = this.#listeners["all"];
+    let listeners = this._listeners["all"];
 
     if (listeners === undefined)
-      listeners = this.#listeners["all"] = new Set<HistoryEventListener>();
+      listeners = this._listeners["all"] = new Set<HistoryEventListener>();
 
     listeners.add(cb);
 
@@ -159,6 +215,12 @@ export class BrowserHistory implements History {
   }
 }
 
+/**
+ * A history implementation that extends the {@link BrowserHistory} class.
+ * It transforms current path and state to use hash-based history.
+ *
+ * @see BrowserHistory
+ */
 export class HashHistory extends BrowserHistory {
   public override push(path: string, state: State) {
     path = "/#" + path;

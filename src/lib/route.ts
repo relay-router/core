@@ -10,24 +10,21 @@ import { RouterError } from "./router-error";
  * will be called in order they appear in the constructor.
  *
  * It also parses the path and stores the parameters in the param
- * ({@link RouteContext.param})field of a {@link RouteContext} instance.
+ * ({@link RouteContext#param}) field of a {@link RouteContext} instance.
  */
 export class Route {
   /**
    * The handlers to call when the route matches.
-   * @private
    */
   private readonly _handlers: RouteHandler[];
 
   /**
    * The pattern to match against.
-   * @private
    */
   private readonly _regex: RegExp;
 
   /**
    * The keys of the parameters in the pattern.
-   * @private
    */
   private readonly _keys: Key[];
 
@@ -43,7 +40,7 @@ export class Route {
 
   /**
    * Parses the params from the path and stores the
-   * results in the {@link RouteContext.param}.
+   * results in the {@link RouteContext#param}.
    *
    * @param path The path to match against.
    * @param context The context to use for the matching.
@@ -84,11 +81,11 @@ export class Route {
    * Some properties of the context may be modified
    * by the route handlers in this route.
    *
-   * @param {RouteContext} context the context to use for the matching
+   * @param context the context to use for the matching
    *
    * @returns true if the route was able to handle the context, false otherwise.
    *
-   * @throws {RouterError} If the context is already handled.
+   * @throws {@link RouterError} If the context is already handled.
    */
   public handle(context: RouteContext): boolean {
     if (context.handled)

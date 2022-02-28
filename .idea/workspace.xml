@@ -2,15 +2,23 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="40c52454-874c-47af-80f6-a4e557b42f94" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.eslintignore" beforeDir="false" afterPath="$PROJECT_DIR$/.eslintignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/core.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/core.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.npmignore" beforeDir="false" afterPath="$PROJECT_DIR$/.npmignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.prettierignore" beforeDir="false" afterPath="$PROJECT_DIR$/.prettierignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/history.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/history.test.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/history.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/history.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/route-context.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/route-context.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/router.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/router.test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/router-error.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/router-error.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/router.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/router.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/state.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/state.test.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/state.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/state.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/string-map.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/string-map.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,7 +59,7 @@
     <property name="ts.external.directory.path" value="F:\Files\Repositories\Node\relayjs\core\node_modules\typescript\lib" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
-  <component name="RunManager" selected="npm.test">
+  <component name="RunManager" selected="npm.doc">
     <configuration name="build" type="js.build_tools.npm" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
       <command value="run" />
@@ -72,6 +80,16 @@
       <envs />
       <method v="2" />
     </configuration>
+    <configuration name="doc" type="js.build_tools.npm" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="doc" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
     <configuration name="test" type="js.build_tools.npm" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
       <command value="run" />
@@ -84,6 +102,7 @@
     </configuration>
     <list>
       <item itemvalue="npm.test" />
+      <item itemvalue="npm.doc" />
       <item itemvalue="npm.check" />
       <item itemvalue="npm.build" />
     </list>
@@ -98,7 +117,9 @@
       <updated>1645938735975</updated>
       <workItem from="1645938737127" duration="9628000" />
       <workItem from="1645949663300" duration="24212000" />
-      <workItem from="1646007155743" duration="15493000" />
+      <workItem from="1646007155743" duration="15651000" />
+      <workItem from="1646027057310" duration="869000" />
+      <workItem from="1646029668696" duration="8628000" />
     </task>
     <servers />
   </component>
