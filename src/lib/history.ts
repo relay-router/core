@@ -1,16 +1,32 @@
 import { routerPrivateStateKey, State } from "./state";
 
+/**
+ * Strings representing the different types of history events.
+ */
 export type HistoryEventType = "push" | "replace" | "pop";
+
+/**
+ * A history event. Passed to listeners
+ */
 export type HistoryEvent = {
-  type: HistoryEventType;
+  type: HistoryEventType
   path: string;
   state: State;
 }
 
+/**
+ * A history event listener.
+ */
 export type HistoryEventListener
   = { (event: HistoryEvent): void; };
 
-type Unsubscribe = () => void;
+type ListenerMap<Types extends string> = { [Key in Types]?: Set<HistoryEventListener>; };
+
+
+/**
+ * A callback used to unsubscribe from history events returned by
+ */
+export type UnsubscribeCallback = { (): void; unsubscribe: UnsubscribeCallback; };
 
 export interface History {
   push(path: string, state?: unknown): void;
@@ -23,39 +39,41 @@ export interface History {
 
   go(delta: number): void;
 
-  on(eventType: HistoryEventType, cb: HistoryEventListener): Unsubscribe;
+  subscribe(subscriber: HistoryEventListener): UnsubscribeCallback;
+  subscribe(type: HistoryEventType,
+            subscriber: HistoryEventListener): UnsubscribeCallback;
 }
 
+
 export class BrowserHistory implements History {
-  readonly #listeners: {
-    push?: Set<HistoryEventListener>;
-    replace?: Set<HistoryEventListener>;
-    pop?: Set<HistoryEventListener>;
-  };
+  readonly #listeners: ListenerMap<HistoryEventType | "all">;
 
   constructor() {
     this.#listeners = {};
     window.addEventListener("popstate", (event) => {
       const state = event.state;
       if (State.isValid(state)) {
+        const type = "pop";
         const event: HistoryEvent = {
-          type: "pop",
+          type,
           path: state[routerPrivateStateKey].path,
           state,
         };
-        this.notifyListeners(event);
+        this.notifyListeners(type, event);
       }
     });
   }
 
   push(path: string, state: State) {
     window.history.pushState(state, "", path);
-    this.notifyListeners({ type: "push", path, state });
+    const type = "push";
+    this.notifyListeners(type, { type, path, state });
   }
 
   replace(path: string, state: State) {
     window.history.replaceState(state, "", path);
-    this.notifyListeners({ type: "replace", path, state });
+    const type = "replace";
+    this.notifyListeners(type, { type, path, state });
   }
 
   back() {
@@ -70,16 +88,36 @@ export class BrowserHistory implements History {
     window.history.go(delta);
   }
 
-  protected notifyListeners(event: HistoryEvent) {
-    const listeners = this.#listeners[event.type];
+  protected notifyListeners(type: HistoryEventType, event: HistoryEvent) {
+    const listeners = this.#listeners[type];
     if (listeners) {
       for (const listener of listeners) {
         listener(event);
       }
     }
+
+    const allListeners = this.#listeners["all"];
+
+    if (allListeners) {
+      for (const listener of allListeners) {
+        listener(event);
+      }
+    }
   }
 
-  on(eventType: HistoryEventType, cb: HistoryEventListener): Unsubscribe {
+  subscribe(typeOrListener: HistoryEventType | HistoryEventListener,
+            cb?: HistoryEventListener): UnsubscribeCallback {
+    if (typeOrListener instanceof Function)
+      return this.#subscribeToAllEvents(typeOrListener);
+
+    if (cb instanceof Function)
+      return this.#subscribeToEvent(typeOrListener, cb);
+
+    throw new Error("Invalid arguments");
+  }
+
+  #subscribeToEvent(eventType: HistoryEventType,
+                    cb: HistoryEventListener): UnsubscribeCallback {
     let listeners = this.#listeners[eventType];
 
     if (listeners === undefined)
@@ -88,9 +126,27 @@ export class BrowserHistory implements History {
 
     listeners.add(cb);
 
-    return () => {
-      listeners?.delete(cb);
+    return this.#createUnsubscribeCallback(cb, listeners);
+  }
+
+  #subscribeToAllEvents(cb: HistoryEventListener): UnsubscribeCallback {
+    let listeners = this.#listeners["all"];
+
+    if (listeners === undefined)
+      listeners = this.#listeners["all"] = new Set<HistoryEventListener>();
+
+    listeners.add(cb);
+
+    return this.#createUnsubscribeCallback(cb, listeners);
+  }
+
+  #createUnsubscribeCallback(subToRemove: HistoryEventListener,
+                             listeners: Set<HistoryEventListener>): UnsubscribeCallback {
+    const unsub = () => {
+      listeners.delete(subToRemove);
     };
+    unsub.unsubscribe = unsub;
+    return unsub;
   }
 }
 
@@ -105,8 +161,11 @@ export class HashHistory extends BrowserHistory {
     super.replace(path, state);
   }
 
-  protected override notifyListeners(event: HistoryEvent) {
-    event.path = event.path.replace(/^#/, "");
-    super.notifyListeners(event);
+  protected override notifyListeners(type: HistoryEventType,
+                                     event: HistoryEvent) {
+    const newPath = event.path.replace(/^#/, "");
+    event.state[routerPrivateStateKey].path = newPath;
+    event.path = newPath;
+    super.notifyListeners(type, event);
   }
 }

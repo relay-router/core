@@ -3,7 +3,7 @@ import { RouterError } from "./router-error";
 /**
  * Key string for accessing Router's private state stored in history.state.
  * @example```typescript
- * const rutaState = history.state[rutaPrivateStateKey];
+ * const routerState = history.state[routerPrivateStateKey];
  * ```
  */
 export const routerPrivateStateKey = "__RouterPrivateStateKey_DO_NOT_TAMPER__";
