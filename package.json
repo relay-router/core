@@ -16,7 +16,7 @@
     "clean": "npx tsc --build --clean",
     "format": "npx prettier . --write",
     "build-ts": "npx tsc -p ./tsconfig.build.json",
-    "build": "npm run clean && npm run test && npm run format && npm run lint && npm run build-ts",
+    "build": "npm run clean && npm run lint && npm run test && npm run build-ts",
     "doc": "npx typedoc --options typedoc.json"
   },
   "keywords": [

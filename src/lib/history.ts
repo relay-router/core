@@ -36,7 +36,6 @@ export type UnsubscribeCallback = {
  * A common interface for history implementations.
  */
 export interface History {
-
   /**
    * Push a new entry to the history stack with the given path and state.
    *

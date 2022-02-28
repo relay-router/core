@@ -65,8 +65,8 @@ export class State {
    */
   public static fromPrivateState(privateState: RouterPrivateState): State {
     return new State({
-                       [ROUTER_PRIVATE_STATE_KEY]: privateState,
-                     });
+      [ROUTER_PRIVATE_STATE_KEY]: privateState,
+    });
   }
 
   /**

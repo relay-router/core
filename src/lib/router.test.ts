@@ -77,11 +77,10 @@ describe("Router", () => {
     router.route("*", mockedHandler);
 
     router.navigateTo("/parent/child");
-    router.navigateTo("");
     router.navigateTo("/");
     router.navigateTo("/other");
 
-    expect(mockedHandler).toHaveBeenCalledTimes(4);
+    expect(mockedHandler).toHaveBeenCalledTimes(3);
   });
 
   test("a router will delegate to a nested router", () => {

@@ -128,7 +128,7 @@ export class RouteContext {
    * Getter property for unmatched portions of the path.
    */
   public get unmatched(): string {
-    let unmatched = this.path.replace(this.matched, "")
+    let unmatched = this.path.replace(this.matched, "");
 
     if (unmatched === "" && !unmatched.startsWith("/")) {
       unmatched = "/" + unmatched;

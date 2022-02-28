@@ -209,8 +209,9 @@ export class Router {
       throw new RouterError("Router has not been started yet.");
 
     if (!absolutePath.startsWith("/"))
-      throw new RouterError("Path must be absolute. " +
-                            "Relative paths are not supported.");
+      throw new RouterError(
+        "Path must be absolute. " + "Relative paths are not supported.",
+      );
 
     const state = State.fromPrivateState({ path: absolutePath });
     this._history.push(absolutePath, state);
