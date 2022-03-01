@@ -2,6 +2,7 @@ import { type Key, pathToRegexp } from "path-to-regexp";
 import type { RouteContext } from "./route-context";
 import type { RouteMatchingOptions, RouteHandler } from "./router";
 import { RouterError } from "./router-error";
+import type { NavigationContext } from "./navigation-context";
 
 /**
  * Represents a route. Internally, it stores a chain of handlers.
@@ -74,46 +75,37 @@ export class Route {
   }
 
   /**
-   * Handles the route context.
+   * Finds a handler.
    *
-   * If the context is handled already, it will throw an error.
+   * If the navigation is handled already, it will throw an error.
    *
    * Some properties of the context may be modified
    * by the route handlers in this route.
    *
-   * @param context the context to use for the matching
+   * @param routeContext provides the context for the matching.
+   * @param navigationContext to control the flow of navigation
    *
    * @returns true if the route was able to handle the context, false otherwise.
    *
    * @throws {@link RouterError} If the context is already handled.
    */
-  public handle(context: RouteContext): boolean {
-    if (context.handled)
-      throw new RouterError("Context was already handled", context);
+  public handle(routeContext: RouteContext,
+                navigationContext: NavigationContext) {
+    if (navigationContext.handled)
+      throw new RouterError("Navigation was already handled", routeContext);
 
-    let pathToHandle = context.unmatched;
+    let pathToHandle = routeContext.unmatched;
 
-    if (!pathToHandle) pathToHandle = "/";
+    if (pathToHandle === "") pathToHandle = "/";
 
     if (!this._regex.test(pathToHandle)) return false;
 
-    this.parseParamsAndStoreToContext(pathToHandle, context);
-
-    let callNextHandler = false;
-
-    const next = () => {
-      callNextHandler = true;
-    };
+    this.parseParamsAndStoreToContext(pathToHandle, routeContext);
 
     for (const handler of this._handlers) {
-      callNextHandler = false;
-      handler(context, next);
+      handler(routeContext, navigationContext);
 
-      if (!callNextHandler) {
-        return (context.handled = true);
-      }
+      if (navigationContext.resolved) return;
     }
-
-    return false;
   }
 }

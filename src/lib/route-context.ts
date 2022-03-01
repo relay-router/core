@@ -72,16 +72,6 @@ export class RouteContext {
   public readonly hash: string;
 
   /**
-   * Flag that indicates if the context is completely handled by a route
-   * and the router should not call the next route handlers in the chain.
-   *
-   * You normally should not set this flag manually.
-   * It is automatically set to false by the router when a handler calls
-   * `next` function passed as the second argument.
-   */
-  public handled: boolean;
-
-  /**
    * The part of the pathname which is matched by the route path pattern.
    * Empty string if the pathname hasn't been matched yet.
    * You should not set this property manually.
@@ -104,7 +94,6 @@ export class RouteContext {
     this.queryString = url.search;
     this.hash = url.hash;
     this.query = url.searchParams;
-    this.handled = false;
     this.matched = "";
     this._state = state;
   }

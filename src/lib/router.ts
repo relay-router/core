@@ -1,13 +1,14 @@
-import { type StateSaverCallback, RouteContext } from "./route-context";
+import { RouteContext, type StateSaverCallback } from "./route-context";
 import { Route } from "./route";
 import type {
   ParseOptions,
-  TokensToRegexpOptions,
   RegexpToFunctionOptions,
+  TokensToRegexpOptions,
 } from "path-to-regexp";
 import { State } from "./state";
 import { RouterError } from "./router-error";
 import type { History } from "./history";
+import { NavigationContext } from "./navigation-context";
 
 /**
  * Describes the shape of the options passed to the second argument of the
@@ -47,7 +48,11 @@ export type RouteMatchingOptions = ParseOptions &
  * {@link Router#route} method.
  */
 export interface RouteHandler {
-  (context: RouteContext, next: () => void): void;
+  (context: RouteContext, controller: NavigationContext): void;
+}
+
+export interface ErrorHandler {
+  (error?: any): void;
 }
 
 /**
@@ -125,12 +130,17 @@ export class Router {
    */
   private readonly _routes: Route[];
 
+  private readonly _errorHandlers: Set<ErrorHandler>;
+
   /**
    * The current context that is created by the router
-   *
-   * @private
    */
   private _context?: RouteContext;
+
+  /**
+   * Indicates how to proceed with the navigation.
+   */
+  private _navigation?: NavigationContext;
 
   /**
    * The history API to use for the router.
@@ -153,6 +163,7 @@ export class Router {
     });
 
     this._routes = [];
+    this._errorHandlers = new Set<ErrorHandler>();
   }
 
   /**
@@ -220,6 +231,17 @@ export class Router {
   }
 
   /**
+   * Redirects navigation redirectPath a path redirectPath another path.
+   * @param absolutePath The path to redirect.
+   * @param redirectPath The path to redirect to when the absolute path is matched.
+   */
+  public redirect(absolutePath: string, redirectPath: string) {
+    this.route(absolutePath, (_context, nav) => {
+      nav.redirect(redirectPath);
+    });
+  }
+
+  /**
    * Creates a context for the router using passed state, then call handlers
    * for context.
    *
@@ -236,7 +258,8 @@ export class Router {
    */
   private navigateWithState(state: State) {
     this._context = new RouteContext(state, this._saveState);
-    this.navigateWithContext(this._context);
+    this._navigation = new NavigationContext();
+    this.navigateWithContext(this._context, this._navigation);
   }
 
   /**
@@ -246,16 +269,44 @@ export class Router {
    *
    * @param context
    *
+   * @param navigation
    * @throws {@link RouterError} If {@link RouteContext#handled} is still false
    * after calling all the handlers.
    */
-  private navigateWithContext(context: RouteContext) {
+  private navigateWithContext(context: RouteContext,
+                              navigation: NavigationContext) {
     for (const route of this._routes) {
-      if (route.handle(context)) return;
+      route.handle(context, navigation);
+
+      if (navigation.handled) return;
+
+      if (navigation.aborted) this.callErrorHandlers(navigation.error);
+
+      if (navigation.redirected)
+        this.navigateTo(navigation.redirectPath);
     }
 
-    if (!context.handled)
-      throw new RouterError(`No route matched: ${context.path}`, context);
+    if (!navigation.resolved)
+      throw new RouterError(`Navigation was unresolved: ${context.path}`,
+                            context);
+  }
+
+  /**
+   * Registers a handler that will be called when an error occurs.
+   */
+  public error(...handlers: ErrorHandler[]) {
+    handlers.forEach((handler) => this._errorHandlers.add(handler));
+  }
+
+  private callErrorHandlers(error?: any) {
+    if (this._errorHandlers.size === 0) {
+      throw new RouterError(
+        "Router aborted because no error handlers were registered.");
+    }
+
+    for (const errorHandler of this._errorHandlers) {
+      errorHandler(error);
+    }
   }
 
   /**
@@ -282,14 +333,11 @@ export class Router {
    * Returns the global router instance.
    */
   public static get global() {
-    return Router._globalRouter;
-  }
+    if (!Router._globalRouter)
+      throw new RouterError("Global router has not been initialized. " +
+                            "Did you call start()?");
 
-  /**
-   * Calls start on the global router.
-   */
-  public static start() {
-    Router._globalRouter?.start();
+    return Router._globalRouter;
   }
 
   /**
@@ -358,8 +406,8 @@ export class Router {
    * Will stop the router and remove all routes and handlers registered.
    */
   public reset(): void {
-    this._routes.length = 0;
     this.stop();
+    this._routes.length = 0;
   }
 
   /**
@@ -368,9 +416,13 @@ export class Router {
   public static createNested(): NestedRouterMiddleware {
     const miniRouter = { _routes: [] as Route[] };
 
-    const middleware = (context: RouteContext, next: () => void) => {
-      Router.prototype.navigateWithContext.call(miniRouter, context);
-      if (!context.handled) next();
+    const middleware = (context: RouteContext,
+                        navigation: NavigationContext) => {
+      Router.prototype.navigateWithContext.call(
+        miniRouter,
+        context,
+        navigation,
+      );
     };
 
     middleware.route = Router.prototype.route.bind(miniRouter);

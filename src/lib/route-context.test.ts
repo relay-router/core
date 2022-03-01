@@ -86,15 +86,6 @@ describe("RouteContext", () => {
     expect(routeContext.path).toBe(dummyPathWithQueryAndHash);
   });
 
-  test("handled should be false by default", () => {
-    const routeContext = new RouteContext(
-      createStateFromPath(dummyPath),
-      jest.fn(),
-    );
-
-    expect(routeContext.handled).toBe(false);
-  });
-
   test("state should be empty by default", () => {
     const routeContext = new RouteContext(
       createStateFromPath(dummyPath),

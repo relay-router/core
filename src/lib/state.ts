@@ -38,6 +38,9 @@ export class State {
   /**
    * The public state for clients to access. Only serializable
    * types (e.g. Numbers and Strings) are supported.
+   *
+   * @default null
+   *
    * Can be accessed by {@link RouteContext#state}
    */
   public publicState?: unknown;
@@ -53,7 +56,7 @@ export class State {
     }
 
     this[ROUTER_PRIVATE_STATE_KEY] = unknownState[ROUTER_PRIVATE_STATE_KEY];
-    this.publicState = unknownState.publicState;
+    this.publicState = unknownState.publicState ?? null;
   }
 
   /**

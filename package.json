@@ -15,8 +15,8 @@
     "check": "npx tsc --noEmit && npm run lint",
     "clean": "npx tsc --build --clean",
     "format": "npx prettier . --write",
-    "build-ts": "npx tsc -p ./tsconfig.build.json",
-    "build": "npm run clean && npm run lint && npm run test && npm run build-ts",
+    "build:ts": "npx tsc -p ./tsconfig.build.json",
+    "build": "npm run clean && npm run lint && npm run test && npm run build:ts",
     "doc": "npx typedoc --options typedoc.json"
   },
   "keywords": [
@@ -27,7 +27,7 @@
     "routing"
   ],
   "author": "Clarence Delmacio Manuel",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@types/jest": "^27.4.0",
     "@typescript-eslint/eslint-plugin": "^5.12.1",
