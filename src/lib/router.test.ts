@@ -137,9 +137,8 @@ describe("Router", () => {
     const handler = jest.fn((_ctx, nav) => {
       nav.ok();
     });
-
-    router.route("/other", handler);
     router.redirect("/path", "/other");
+    router.route("/other", handler);
 
     router.navigateTo("/path");
 
@@ -156,7 +155,7 @@ describe("Router", () => {
     router.route("/path", jest.fn((_ctx, nav) => nav.abort()));
 
     const errorHandler = jest.fn();
-    router.error(errorHandler); // register a handler for errors
+    router.error(errorHandler);
 
     expect(() => router.navigateTo("/path")).not.toThrowError();
   });

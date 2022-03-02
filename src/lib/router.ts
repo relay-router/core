@@ -221,7 +221,7 @@ export class Router {
 
     if (!absolutePath.startsWith("/"))
       throw new RouterError(
-        "Path must be absolute. " + "Relative paths are not supported.",
+        "Path must be absolute. Relative paths are not supported.",
       );
 
     const state = State.fromPrivateState({ path: absolutePath });
@@ -231,13 +231,13 @@ export class Router {
   }
 
   /**
-   * Redirects navigation redirectPath a path redirectPath another path.
+   * Redirects navigation to a path to another path.
    * @param absolutePath The path to redirect.
-   * @param redirectPath The path to redirect to when the absolute path is matched.
+   * @param redirectTo The path to redirect to when the absolute path is matched.
    */
-  public redirect(absolutePath: string, redirectPath: string) {
+  public redirect(absolutePath: string, redirectTo: string) {
     this.route(absolutePath, (_context, nav) => {
-      nav.redirect(redirectPath);
+      nav.redirect(redirectTo);
     });
   }
 
@@ -278,13 +278,15 @@ export class Router {
     for (const route of this._routes) {
       route.handle(context, navigation);
 
-      if (navigation.handled) return;
-
-      if (navigation.aborted) this.callErrorHandlers(navigation.error);
-
-      if (navigation.redirected)
-        this.navigateTo(navigation.redirectPath);
+      if (navigation.resolved) break;
     }
+
+    if (navigation.handled) return;
+
+    if (navigation.aborted) this.callErrorHandlers(navigation.error);
+
+    if (navigation.redirected)
+      this.navigateTo(navigation.redirectPath);
 
     if (!navigation.resolved)
       throw new RouterError(`Navigation was unresolved: ${context.path}`,
@@ -335,7 +337,7 @@ export class Router {
   public static get global() {
     if (!Router._globalRouter)
       throw new RouterError("Global router has not been initialized. " +
-                            "Did you call start()?");
+                            "Did you call start() on the router instance?");
 
     return Router._globalRouter;
   }

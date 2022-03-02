@@ -7,7 +7,11 @@
 * Middleware Support
 * Nested Routing
 
-## Basic Usage
+## Docs
+[Click Here For Full Documentations](https://relay-router.github.io/core/)
+
+
+### Basic Usage
 
 ```typescript
 import { Router, BrowserHistory } from "@relayjs/core";
@@ -59,7 +63,7 @@ router.start();
 router.navigateTo("/contact");
 ```
 
-## Navigation using HTML Anchor Elements
+### Navigation using HTML Anchor Elements
 ```html
 <!--
 Click on an anchor element with an attribute of either data-relay-link or relay-link
@@ -80,7 +84,7 @@ NOTE: Most of the time, paths should be absolute,
 <a href="../path">Will be resolved to https://example.com/path</a>
 ```
 
-## Nested Routing
+### Nested Routing
 
 ```typescript
 import { Router, BrowserHistory } from "@relayjs/core";
@@ -130,7 +134,7 @@ router.navigateTo("/george");
 router.navigateTo("/");
 ```
 
-## Path Parameters
+### Path Parameters
 ```typescript
 import { Router, BrowserHistory } from "@relayjs/core";
 
@@ -158,7 +162,7 @@ router.start();
 router.navigateTo("/user/123"); // Will print "User ID: 123"
 ```
 
-## Middleware Support
+### Middleware Support
 ```typescript
 import { Router, BrowserHistory } from "@relayjs/core";
 

@@ -40,6 +40,7 @@
     "importsNotUsedAsValues": "error",
     "newLine": "lf",
     "stripInternal": true,
+    "preserveConstEnums": true, // Don't erase const enums after compilation
     /* Emit */
 
     /* Interop Constraints */
