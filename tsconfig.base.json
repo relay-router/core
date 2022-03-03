@@ -10,8 +10,8 @@
     /* Projects */
 
     /* Language and Environment */
-    "target": "es6",
-    // "lib": [],
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM"],
     "useDefineForClassFields": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
